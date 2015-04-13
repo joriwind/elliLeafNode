@@ -1,0 +1,488 @@
+desc: --stacks=yes
+cmd: ./bin/native/elliLeafNode.elf tap0
+time_unit: i
+#-----------
+snapshot=0
+#-----------
+time=0
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=1
+#-----------
+time=15725
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=1808
+heap_tree=empty
+#-----------
+snapshot=2
+#-----------
+time=34043
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=580
+heap_tree=empty
+#-----------
+snapshot=3
+#-----------
+time=52544
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=772
+heap_tree=empty
+#-----------
+snapshot=4
+#-----------
+time=66973
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=1168
+heap_tree=empty
+#-----------
+snapshot=5
+#-----------
+time=80102
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=964
+heap_tree=detailed
+n0: 0 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+#-----------
+snapshot=6
+#-----------
+time=95955
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=1108
+heap_tree=empty
+#-----------
+snapshot=7
+#-----------
+time=107943
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=1108
+heap_tree=empty
+#-----------
+snapshot=8
+#-----------
+time=123447
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=772
+heap_tree=empty
+#-----------
+snapshot=9
+#-----------
+time=134451
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=1108
+heap_tree=empty
+#-----------
+snapshot=10
+#-----------
+time=150243
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=772
+heap_tree=empty
+#-----------
+snapshot=11
+#-----------
+time=165396
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=328
+heap_tree=empty
+#-----------
+snapshot=12
+#-----------
+time=176292
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=1248
+heap_tree=detailed
+n0: 0 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+#-----------
+snapshot=13
+#-----------
+time=186892
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=432
+heap_tree=empty
+#-----------
+snapshot=14
+#-----------
+time=200687
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=384
+heap_tree=empty
+#-----------
+snapshot=15
+#-----------
+time=210192
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=924
+heap_tree=empty
+#-----------
+snapshot=16
+#-----------
+time=228159
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=756
+heap_tree=empty
+#-----------
+snapshot=17
+#-----------
+time=242751
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=436
+heap_tree=empty
+#-----------
+snapshot=18
+#-----------
+time=88138166
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=436
+heap_tree=empty
+#-----------
+snapshot=19
+#-----------
+time=88141122
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=18560
+heap_tree=detailed
+n1: 0 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n0: 0 in 1 place, below massif's threshold (01.00%)
+#-----------
+snapshot=20
+#-----------
+time=176021480
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=18304
+heap_tree=empty
+#-----------
+snapshot=21
+#-----------
+time=176025836
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=19024
+heap_tree=detailed
+n1: 0 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n0: 0 in 1 place, below massif's threshold (01.00%)
+#-----------
+snapshot=22
+#-----------
+time=176055733
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=18680
+heap_tree=empty
+#-----------
+snapshot=23
+#-----------
+time=176069301
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=19316
+heap_tree=empty
+#-----------
+snapshot=24
+#-----------
+time=263963060
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=19104
+heap_tree=empty
+#-----------
+snapshot=25
+#-----------
+time=263966612
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=19980
+heap_tree=detailed
+n1: 0 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n0: 0 in 1 place, below massif's threshold (01.00%)
+#-----------
+snapshot=26
+#-----------
+time=351860660
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=19368
+heap_tree=empty
+#-----------
+snapshot=27
+#-----------
+time=351863421
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=19868
+heap_tree=empty
+#-----------
+snapshot=28
+#-----------
+time=439744622
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=19680
+heap_tree=empty
+#-----------
+snapshot=29
+#-----------
+time=527624632
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=19680
+heap_tree=empty
+#-----------
+snapshot=30
+#-----------
+time=527627239
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=20216
+heap_tree=detailed
+n1: 0 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n0: 0 in 1 place, below massif's threshold (01.00%)
+#-----------
+snapshot=31
+#-----------
+time=615521380
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=19896
+heap_tree=empty
+#-----------
+snapshot=32
+#-----------
+time=615526201
+mem_heap_B=100
+mem_heap_extra_B=12
+mem_stacks_B=21872
+heap_tree=detailed
+n1: 100 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n0: 100 in 1 place, below massif's threshold (01.00%)
+#-----------
+snapshot=33
+#-----------
+time=703420749
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=20236
+heap_tree=empty
+#-----------
+snapshot=34
+#-----------
+time=703431786
+mem_heap_B=4
+mem_heap_extra_B=12
+mem_stacks_B=13908
+heap_tree=empty
+#-----------
+snapshot=35
+#-----------
+time=703442793
+mem_heap_B=836
+mem_heap_extra_B=36
+mem_stacks_B=4632
+heap_tree=empty
+#-----------
+snapshot=36
+#-----------
+time=703460117
+mem_heap_B=3768
+mem_heap_extra_B=48
+mem_stacks_B=6484
+heap_tree=empty
+#-----------
+snapshot=37
+#-----------
+time=703474465
+mem_heap_B=3768
+mem_heap_extra_B=48
+mem_stacks_B=6484
+heap_tree=empty
+#-----------
+snapshot=38
+#-----------
+time=703487503
+mem_heap_B=3768
+mem_heap_extra_B=48
+mem_stacks_B=6484
+heap_tree=empty
+#-----------
+snapshot=39
+#-----------
+time=703505878
+mem_heap_B=3768
+mem_heap_extra_B=48
+mem_stacks_B=6484
+heap_tree=empty
+#-----------
+snapshot=40
+#-----------
+time=703523063
+mem_heap_B=3768
+mem_heap_extra_B=48
+mem_stacks_B=6484
+heap_tree=empty
+#-----------
+snapshot=41
+#-----------
+time=703562856
+mem_heap_B=4853
+mem_heap_extra_B=59
+mem_stacks_B=6444
+heap_tree=detailed
+n3: 4853 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n4: 4501 0x8052154: wolfSSL_Malloc (memory.c:80)
+  n1: 2932 0x8063DBB: ProcessFile (ssl.c:3013)
+   n1: 2932 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+    n1: 2932 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+     n1: 2932 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+      n0: 2932 0x407DC69: makecontext (makecontext.S:82)
+  n1: 1085 0x8062D44: PemToDer (ssl.c:2142)
+   n1: 1085 0x8062F50: ProcessBuffer (ssl.c:2251)
+    n1: 1085 0x8063A09: ProcessChainBuffer (ssl.c:2650)
+     n1: 1085 0x8063E9D: ProcessFile (ssl.c:3029)
+      n1: 1085 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+       n1: 1085 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+        n1: 1085 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+         n0: 1085 0x407DC69: makecontext (makecontext.S:82)
+  n1: 368 0x8060E96: wolfSSL_CTX_new (ssl.c:137)
+   n1: 368 0x805093A: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+    n1: 368 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+     n0: 368 0x407DC69: makecontext (makecontext.S:82)
+  n0: 116 in 2 places, all below massif's threshold (01.00%)
+ n1: 352 0x40A0D1A: __fopen_internal (iofopen.c:73)
+  n1: 352 0x40A0DF9: fopen@@GLIBC_2.1 (iofopen.c:103)
+   n1: 352 0x8063D3A: ProcessFile (ssl.c:3005)
+    n1: 352 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+     n1: 352 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+      n1: 352 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+       n0: 352 0x407DC69: makecontext (makecontext.S:82)
+ n0: 0 in 1 place, below massif's threshold (01.00%)
+#-----------
+snapshot=42
+#-----------
+time=703575878
+mem_heap_B=4853
+mem_heap_extra_B=59
+mem_stacks_B=7984
+heap_tree=empty
+#-----------
+snapshot=43
+#-----------
+time=703596777
+mem_heap_B=4853
+mem_heap_extra_B=59
+mem_stacks_B=7812
+heap_tree=empty
+#-----------
+snapshot=44
+#-----------
+time=703609883
+mem_heap_B=4930
+mem_heap_extra_B=126
+mem_stacks_B=7908
+heap_tree=empty
+#-----------
+snapshot=45
+#-----------
+time=703628182
+mem_heap_B=4930
+mem_heap_extra_B=126
+mem_stacks_B=7780
+heap_tree=empty
+#-----------
+snapshot=46
+#-----------
+time=703640772
+mem_heap_B=5020
+mem_heap_extra_B=164
+mem_stacks_B=18952
+heap_tree=peak
+n3: 5020 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n4: 4616 0x8052154: wolfSSL_Malloc (memory.c:80)
+  n1: 2932 0x8063DBB: ProcessFile (ssl.c:3013)
+   n1: 2932 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+    n1: 2932 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+     n1: 2932 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+      n0: 2932 0x407DC69: makecontext (makecontext.S:82)
+  n1: 1085 0x8062D44: PemToDer (ssl.c:2142)
+   n1: 1085 0x8062F50: ProcessBuffer (ssl.c:2251)
+    n1: 1085 0x8063A09: ProcessChainBuffer (ssl.c:2650)
+     n1: 1085 0x8063E9D: ProcessFile (ssl.c:3029)
+      n1: 1085 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+       n1: 1085 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+        n1: 1085 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+         n0: 1085 0x407DC69: makecontext (makecontext.S:82)
+  n1: 368 0x8060E96: wolfSSL_CTX_new (ssl.c:137)
+   n1: 368 0x805093A: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+    n1: 368 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+     n0: 368 0x407DC69: makecontext (makecontext.S:82)
+  n0: 231 in 6 places, all below massif's threshold (01.00%)
+ n1: 352 0x40A0D1A: __fopen_internal (iofopen.c:73)
+  n2: 352 0x40A0DF9: fopen@@GLIBC_2.1 (iofopen.c:103)
+   n1: 352 0x8063D3A: ProcessFile (ssl.c:3005)
+    n1: 352 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+     n1: 352 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+      n1: 352 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+       n0: 352 0x407DC69: makecontext (makecontext.S:82)
+   n0: 0 in 1 place, below massif's threshold (01.00%)
+ n0: 52 in 5 places, all below massif's threshold (01.00%)
+#-----------
+snapshot=47
+#-----------
+time=703651249
+mem_heap_B=5062
+mem_heap_extra_B=138
+mem_stacks_B=18372
+heap_tree=empty
+#-----------
+snapshot=48
+#-----------
+time=703661761
+mem_heap_B=693
+mem_heap_extra_B=107
+mem_stacks_B=2772
+heap_tree=empty
+#-----------
+snapshot=49
+#-----------
+time=703675107
+mem_heap_B=2585
+mem_heap_extra_B=111
+mem_stacks_B=3032
+heap_tree=empty
+#-----------
+snapshot=50
+#-----------
+time=703677723
+mem_heap_B=2573
+mem_heap_extra_B=99
+mem_stacks_B=3080
+heap_tree=empty
+#-----------
+snapshot=51
+#-----------
+time=703680330
+mem_heap_B=2573
+mem_heap_extra_B=99
+mem_stacks_B=3080
+heap_tree=empty

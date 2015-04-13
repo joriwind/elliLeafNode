@@ -1,0 +1,450 @@
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+  0              0                0                0             0            0
+  1        220,477              112              100            12            0
+  2        222,623              112              100            12            0
+89.29% (100B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->89.29% (100B) 0x804D786: make_message (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+  ->89.29% (100B) 0x804D853: printf (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+    ->89.29% (100B) 0x804A122: kernel_init (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+      ->89.29% (100B) 0x804A070: startup (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+        ->89.29% (100B) 0x8091FB0: __libc_csu_init (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+          ->89.29% (100B) 0x4056A18: (below main) (libc-start.c:246)
+            
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+  3        222,623                0                0             0            0
+  4    615,525,863              112              100            12            0
+  5    615,527,012                0                0             0            0
+  6    703,428,299               16                4            12            0
+  7    703,433,951              392              372            20            0
+  8    703,435,756              512              484            28            0
+  9    703,441,685              872              836            36            0
+ 10    703,447,188            3,816            3,768            48            0
+ 11    703,523,275            4,912            4,853            59            0
+ 12    703,567,925            4,928            4,857            71            0
+98.56% (4,857B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->91.42% (4,505B) 0x8052154: wolfSSL_Malloc (memory.c:80)
+| ->59.50% (2,932B) 0x8063DBB: ProcessFile (ssl.c:3013)
+| | ->59.50% (2,932B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+| |   ->59.50% (2,932B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |     ->59.50% (2,932B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |       ->59.50% (2,932B) 0x407DC69: makecontext (makecontext.S:82)
+| |         
+| ->22.02% (1,085B) 0x8062D44: PemToDer (ssl.c:2142)
+| | ->22.02% (1,085B) 0x8062F50: ProcessBuffer (ssl.c:2251)
+| |   ->22.02% (1,085B) 0x8063A09: ProcessChainBuffer (ssl.c:2650)
+| |     ->22.02% (1,085B) 0x8063E9D: ProcessFile (ssl.c:3029)
+| |       ->22.02% (1,085B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+| |         ->22.02% (1,085B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |           ->22.02% (1,085B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |             ->22.02% (1,085B) 0x407DC69: makecontext (makecontext.S:82)
+| |               
+| ->07.47% (368B) 0x8060E96: wolfSSL_CTX_new (ssl.c:137)
+| | ->07.47% (368B) 0x805093A: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |   ->07.47% (368B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |     ->07.47% (368B) 0x407DC69: makecontext (makecontext.S:82)
+| |       
+| ->02.27% (112B) 0x8061C76: wolfSSL_CertManagerNew (ssl.c:1270)
+| | ->02.27% (112B) 0x8052561: InitSSL_Ctx (internal.c:416)
+| |   ->02.27% (112B) 0x8060EB1: wolfSSL_CTX_new (ssl.c:139)
+| |     ->02.27% (112B) 0x805093A: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |       ->02.27% (112B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |         ->02.27% (112B) 0x407DC69: makecontext (makecontext.S:82)
+| |           
+| ->00.16% (8B) in 1+ places, all below ms_print's threshold (01.00%)
+| 
+->07.14% (352B) 0x40A0D1A: __fopen_internal (iofopen.c:73)
+| ->07.14% (352B) 0x40A0DF9: fopen@@GLIBC_2.1 (iofopen.c:103)
+|   ->07.14% (352B) 0x8063D3A: ProcessFile (ssl.c:3005)
+|     ->07.14% (352B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+|       ->07.14% (352B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+|         ->07.14% (352B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+|           ->07.14% (352B) 0x407DC69: makecontext (makecontext.S:82)
+|             
+->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 13    703,568,120            4,936            4,869            67            0
+ 14    703,570,035            4,952            4,873            79            0
+ 15    703,570,235            4,968            4,889            79            0
+ 16    703,570,523            4,984            4,893            91            0
+ 17    703,570,896            4,984            4,893            91            0
+98.17% (4,893B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->90.39% (4,505B) 0x8052154: wolfSSL_Malloc (memory.c:80)
+| ->58.83% (2,932B) 0x8063DBB: ProcessFile (ssl.c:3013)
+| | ->58.83% (2,932B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+| |   ->58.83% (2,932B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |     ->58.83% (2,932B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |       ->58.83% (2,932B) 0x407DC69: makecontext (makecontext.S:82)
+| |         
+| ->21.77% (1,085B) 0x8062D44: PemToDer (ssl.c:2142)
+| | ->21.77% (1,085B) 0x8062F50: ProcessBuffer (ssl.c:2251)
+| |   ->21.77% (1,085B) 0x8063A09: ProcessChainBuffer (ssl.c:2650)
+| |     ->21.77% (1,085B) 0x8063E9D: ProcessFile (ssl.c:3029)
+| |       ->21.77% (1,085B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+| |         ->21.77% (1,085B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |           ->21.77% (1,085B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |             ->21.77% (1,085B) 0x407DC69: makecontext (makecontext.S:82)
+| |               
+| ->07.38% (368B) 0x8060E96: wolfSSL_CTX_new (ssl.c:137)
+| | ->07.38% (368B) 0x805093A: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |   ->07.38% (368B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |     ->07.38% (368B) 0x407DC69: makecontext (makecontext.S:82)
+| |       
+| ->02.25% (112B) 0x8061C76: wolfSSL_CertManagerNew (ssl.c:1270)
+| | ->02.25% (112B) 0x8052561: InitSSL_Ctx (internal.c:416)
+| |   ->02.25% (112B) 0x8060EB1: wolfSSL_CTX_new (ssl.c:139)
+| |     ->02.25% (112B) 0x805093A: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |       ->02.25% (112B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |         ->02.25% (112B) 0x407DC69: makecontext (makecontext.S:82)
+| |           
+| ->00.16% (8B) in 1+ places, all below ms_print's threshold (01.00%)
+| 
+->07.06% (352B) 0x40A0D1A: __fopen_internal (iofopen.c:73)
+| ->07.06% (352B) 0x40A0DF9: fopen@@GLIBC_2.1 (iofopen.c:103)
+|   ->07.06% (352B) 0x8063D3A: ProcessFile (ssl.c:3005)
+|     ->07.06% (352B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+|       ->07.06% (352B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+|         ->07.06% (352B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+|           ->07.06% (352B) 0x407DC69: makecontext (makecontext.S:82)
+|             
+->00.72% (36B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 18    703,570,896            4,968            4,889            79            0
+ 19    703,571,058            4,984            4,893            91            0
+ 20    703,571,391            4,968            4,889            79            0
+ 21    703,571,553            4,984            4,893            91            0
+ 22    703,571,886            4,968            4,889            79            0
+ 23    703,572,048            4,984            4,893            91            0
+ 24    703,572,381            4,968            4,889            79            0
+ 25    703,572,543            4,984            4,893            91            0
+ 26    703,572,895            4,968            4,889            79            0
+ 27    703,573,057            4,984            4,893            91            0
+98.17% (4,893B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->90.39% (4,505B) 0x8052154: wolfSSL_Malloc (memory.c:80)
+| ->58.83% (2,932B) 0x8063DBB: ProcessFile (ssl.c:3013)
+| | ->58.83% (2,932B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+| |   ->58.83% (2,932B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |     ->58.83% (2,932B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |       ->58.83% (2,932B) 0x407DC69: makecontext (makecontext.S:82)
+| |         
+| ->21.77% (1,085B) 0x8062D44: PemToDer (ssl.c:2142)
+| | ->21.77% (1,085B) 0x8062F50: ProcessBuffer (ssl.c:2251)
+| |   ->21.77% (1,085B) 0x8063A09: ProcessChainBuffer (ssl.c:2650)
+| |     ->21.77% (1,085B) 0x8063E9D: ProcessFile (ssl.c:3029)
+| |       ->21.77% (1,085B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+| |         ->21.77% (1,085B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |           ->21.77% (1,085B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |             ->21.77% (1,085B) 0x407DC69: makecontext (makecontext.S:82)
+| |               
+| ->07.38% (368B) 0x8060E96: wolfSSL_CTX_new (ssl.c:137)
+| | ->07.38% (368B) 0x805093A: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |   ->07.38% (368B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |     ->07.38% (368B) 0x407DC69: makecontext (makecontext.S:82)
+| |       
+| ->02.25% (112B) 0x8061C76: wolfSSL_CertManagerNew (ssl.c:1270)
+| | ->02.25% (112B) 0x8052561: InitSSL_Ctx (internal.c:416)
+| |   ->02.25% (112B) 0x8060EB1: wolfSSL_CTX_new (ssl.c:139)
+| |     ->02.25% (112B) 0x805093A: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |       ->02.25% (112B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |         ->02.25% (112B) 0x407DC69: makecontext (makecontext.S:82)
+| |           
+| ->00.16% (8B) in 1+ places, all below ms_print's threshold (01.00%)
+| 
+->07.06% (352B) 0x40A0D1A: __fopen_internal (iofopen.c:73)
+| ->07.06% (352B) 0x40A0DF9: fopen@@GLIBC_2.1 (iofopen.c:103)
+|   ->07.06% (352B) 0x8063D3A: ProcessFile (ssl.c:3005)
+|     ->07.06% (352B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+|       ->07.06% (352B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+|         ->07.06% (352B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+|           ->07.06% (352B) 0x407DC69: makecontext (makecontext.S:82)
+|             
+->00.72% (36B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 28    703,573,369            4,968            4,889            79            0
+ 29    703,573,531            4,984            4,893            91            0
+ 30    703,573,843            4,968            4,889            79            0
+ 31    703,574,005            4,984            4,893            91            0
+ 32    703,574,328            4,968            4,889            79            0
+ 33    703,574,596            4,936            4,869            67            0
+ 34    703,574,815            4,912            4,853            59            0
+ 35    703,600,451            4,928            4,861            67            0
+ 36    703,600,570            4,960            4,878            82            0
+ 37    703,604,673            4,984            4,893            91            0
+98.17% (4,893B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->90.81% (4,526B) 0x8052154: wolfSSL_Malloc (memory.c:80)
+| ->58.83% (2,932B) 0x8063DBB: ProcessFile (ssl.c:3013)
+| | ->58.83% (2,932B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+| |   ->58.83% (2,932B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |     ->58.83% (2,932B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |       ->58.83% (2,932B) 0x407DC69: makecontext (makecontext.S:82)
+| |         
+| ->21.77% (1,085B) 0x8062D44: PemToDer (ssl.c:2142)
+| | ->21.77% (1,085B) 0x8062F50: ProcessBuffer (ssl.c:2251)
+| |   ->21.77% (1,085B) 0x8063A09: ProcessChainBuffer (ssl.c:2650)
+| |     ->21.77% (1,085B) 0x8063E9D: ProcessFile (ssl.c:3029)
+| |       ->21.77% (1,085B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+| |         ->21.77% (1,085B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |           ->21.77% (1,085B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |             ->21.77% (1,085B) 0x407DC69: makecontext (makecontext.S:82)
+| |               
+| ->07.38% (368B) 0x8060E96: wolfSSL_CTX_new (ssl.c:137)
+| | ->07.38% (368B) 0x805093A: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |   ->07.38% (368B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |     ->07.38% (368B) 0x407DC69: makecontext (makecontext.S:82)
+| |       
+| ->02.25% (112B) 0x8061C76: wolfSSL_CertManagerNew (ssl.c:1270)
+| | ->02.25% (112B) 0x8052561: InitSSL_Ctx (internal.c:416)
+| |   ->02.25% (112B) 0x8060EB1: wolfSSL_CTX_new (ssl.c:139)
+| |     ->02.25% (112B) 0x805093A: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |       ->02.25% (112B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |         ->02.25% (112B) 0x407DC69: makecontext (makecontext.S:82)
+| |           
+| ->00.58% (29B) in 1+ places, all below ms_print's threshold (01.00%)
+| 
+->07.06% (352B) 0x40A0D1A: __fopen_internal (iofopen.c:73)
+| ->07.06% (352B) 0x40A0DF9: fopen@@GLIBC_2.1 (iofopen.c:103)
+|   ->07.06% (352B) 0x8063D3A: ProcessFile (ssl.c:3005)
+|     ->07.06% (352B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+|       ->07.06% (352B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+|         ->07.06% (352B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+|           ->07.06% (352B) 0x407DC69: makecontext (makecontext.S:82)
+|             
+->00.30% (15B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 38    703,604,856            5,344            5,245            99            0
+ 39    703,606,034            5,368            5,257           111            0
+ 40    703,607,319            5,392            5,270           122            0
+ 41    703,607,796            5,392            5,270           122            0
+97.74% (5,270B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->83.94% (4,526B) 0x8052154: wolfSSL_Malloc (memory.c:80)
+| ->54.38% (2,932B) 0x8063DBB: ProcessFile (ssl.c:3013)
+| | ->54.38% (2,932B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+| |   ->54.38% (2,932B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |     ->54.38% (2,932B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |       ->54.38% (2,932B) 0x407DC69: makecontext (makecontext.S:82)
+| |         
+| ->20.12% (1,085B) 0x8062D44: PemToDer (ssl.c:2142)
+| | ->20.12% (1,085B) 0x8062F50: ProcessBuffer (ssl.c:2251)
+| |   ->20.12% (1,085B) 0x8063A09: ProcessChainBuffer (ssl.c:2650)
+| |     ->20.12% (1,085B) 0x8063E9D: ProcessFile (ssl.c:3029)
+| |       ->20.12% (1,085B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+| |         ->20.12% (1,085B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |           ->20.12% (1,085B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |             ->20.12% (1,085B) 0x407DC69: makecontext (makecontext.S:82)
+| |               
+| ->06.82% (368B) 0x8060E96: wolfSSL_CTX_new (ssl.c:137)
+| | ->06.82% (368B) 0x805093A: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |   ->06.82% (368B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |     ->06.82% (368B) 0x407DC69: makecontext (makecontext.S:82)
+| |       
+| ->02.08% (112B) 0x8061C76: wolfSSL_CertManagerNew (ssl.c:1270)
+| | ->02.08% (112B) 0x8052561: InitSSL_Ctx (internal.c:416)
+| |   ->02.08% (112B) 0x8060EB1: wolfSSL_CTX_new (ssl.c:139)
+| |     ->02.08% (112B) 0x805093A: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |       ->02.08% (112B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |         ->02.08% (112B) 0x407DC69: makecontext (makecontext.S:82)
+| |           
+| ->00.54% (29B) in 1+ places, all below ms_print's threshold (01.00%)
+| 
+->13.06% (704B) 0x40A0D1A: __fopen_internal (iofopen.c:73)
+| ->13.06% (704B) 0x40A0DF9: fopen@@GLIBC_2.1 (iofopen.c:103)
+|   ->06.53% (352B) 0x8063D3A: ProcessFile (ssl.c:3005)
+|   | ->06.53% (352B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+|   |   ->06.53% (352B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+|   |     ->06.53% (352B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+|   |       ->06.53% (352B) 0x407DC69: makecontext (makecontext.S:82)
+|   |         
+|   ->06.53% (352B) 0x40E4DD8: __tzfile_read (tzfile.c:168)
+|     ->06.53% (352B) 0x40E47E0: tzset_internal (tzset.c:447)
+|       ->06.53% (352B) 0x40E4AAD: __tz_convert (tzset.c:632)
+|         ->06.53% (352B) 0x40E316B: gmtime (gmtime.c:39)
+|           ->06.53% (352B) 0x80714D2: ValidateDate (asn.c:2380)
+|             ->06.53% (352B) 0x80716C2: GetDate (asn.c:2427)
+|               ->06.53% (352B) 0x8071755: GetValidity (asn.c:2446)
+|                 ->06.53% (352B) 0x807186A: DecodeToKey (asn.c:2478)
+|                   ->06.53% (352B) 0x8073DBA: ParseCertRelative (asn.c:4262)
+|                     ->06.53% (352B) 0x8073C83: ParseCert (asn.c:4212)
+|                       ->06.53% (352B) 0x8062655: AddCA (ssl.c:1793)
+|                         ->06.53% (352B) 0x806356B: ProcessBuffer (ssl.c:2483)
+|                           ->06.53% (352B) 0x8063A09: ProcessChainBuffer (ssl.c:2650)
+|                             ->06.53% (352B) 0x8063E9D: ProcessFile (ssl.c:3029)
+|                               ->06.53% (352B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+|                                 ->06.53% (352B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+|                                   ->06.53% (352B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+|                                     ->06.53% (352B) 0x407DC69: makecontext (makecontext.S:82)
+|                                       
+->00.74% (40B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 42    703,607,796            5,032            4,918           114            0
+ 43    703,607,964            5,056            4,930           126            0
+ 44    703,631,904            5,072            4,938           134            0
+ 45    703,632,023            5,104            4,955           149            0
+ 46    703,635,558            5,184            5,020           164            0
+ 47    703,648,173            5,208            5,036           172            0
+ 48    703,649,429            5,296            5,112           184            0
+ 49    703,650,667            5,264            5,095           169            0
+ 50    703,650,778            5,248            5,087           161            0
+ 51    703,650,897            5,216            5,070           146            0
+97.20% (5,070B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->89.46% (4,666B) 0x8052154: wolfSSL_Malloc (memory.c:80)
+| ->56.21% (2,932B) 0x8063DBB: ProcessFile (ssl.c:3013)
+| | ->56.21% (2,932B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+| |   ->56.21% (2,932B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |     ->56.21% (2,932B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |       ->56.21% (2,932B) 0x407DC69: makecontext (makecontext.S:82)
+| |         
+| ->20.80% (1,085B) 0x8062D44: PemToDer (ssl.c:2142)
+| | ->20.80% (1,085B) 0x8062F50: ProcessBuffer (ssl.c:2251)
+| |   ->20.80% (1,085B) 0x8063A09: ProcessChainBuffer (ssl.c:2650)
+| |     ->20.80% (1,085B) 0x8063E9D: ProcessFile (ssl.c:3029)
+| |       ->20.80% (1,085B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+| |         ->20.80% (1,085B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |           ->20.80% (1,085B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |             ->20.80% (1,085B) 0x407DC69: makecontext (makecontext.S:82)
+| |               
+| ->07.06% (368B) 0x8060E96: wolfSSL_CTX_new (ssl.c:137)
+| | ->07.06% (368B) 0x805093A: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |   ->07.06% (368B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |     ->07.06% (368B) 0x407DC69: makecontext (makecontext.S:82)
+| |       
+| ->02.15% (112B) 0x8061C76: wolfSSL_CertManagerNew (ssl.c:1270)
+| | ->02.15% (112B) 0x8052561: InitSSL_Ctx (internal.c:416)
+| |   ->02.15% (112B) 0x8060EB1: wolfSSL_CTX_new (ssl.c:139)
+| |     ->02.15% (112B) 0x805093A: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |       ->02.15% (112B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |         ->02.15% (112B) 0x407DC69: makecontext (makecontext.S:82)
+| |           
+| ->01.46% (76B) 0x807417D: MakeSigner (asn.c:4378)
+| | ->01.46% (76B) 0x8062740: AddCA (ssl.c:1821)
+| |   ->01.46% (76B) 0x806356B: ProcessBuffer (ssl.c:2483)
+| |     ->01.46% (76B) 0x8063A09: ProcessChainBuffer (ssl.c:2650)
+| |       ->01.46% (76B) 0x8063E9D: ProcessFile (ssl.c:3029)
+| |         ->01.46% (76B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+| |           ->01.46% (76B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |             ->01.46% (76B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |               ->01.46% (76B) 0x407DC69: makecontext (makecontext.S:82)
+| |                 
+| ->01.25% (65B) 0x80704F7: GetKey (asn.c:1817)
+| | ->01.25% (65B) 0x80718B3: DecodeToKey (asn.c:2486)
+| |   ->01.25% (65B) 0x8073DBA: ParseCertRelative (asn.c:4262)
+| |     ->01.25% (65B) 0x8073C83: ParseCert (asn.c:4212)
+| |       ->01.25% (65B) 0x8062655: AddCA (ssl.c:1793)
+| |         ->01.25% (65B) 0x806356B: ProcessBuffer (ssl.c:2483)
+| |           ->01.25% (65B) 0x8063A09: ProcessChainBuffer (ssl.c:2650)
+| |             ->01.25% (65B) 0x8063E9D: ProcessFile (ssl.c:3029)
+| |               ->01.25% (65B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+| |                 ->01.25% (65B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |                   ->01.25% (65B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |                     ->01.25% (65B) 0x407DC69: makecontext (makecontext.S:82)
+| |                       
+| ->00.54% (28B) in 1+ places, all below ms_print's threshold (01.00%)
+| 
+->06.75% (352B) 0x40A0D1A: __fopen_internal (iofopen.c:73)
+| ->06.75% (352B) 0x40A0DF9: fopen@@GLIBC_2.1 (iofopen.c:103)
+|   ->06.75% (352B) 0x8063D3A: ProcessFile (ssl.c:3005)
+|   | ->06.75% (352B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+|   |   ->06.75% (352B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+|   |     ->06.75% (352B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+|   |       ->06.75% (352B) 0x407DC69: makecontext (makecontext.S:82)
+|   |         
+|   ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|   
+->01.00% (52B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 52    703,651,008            5,200            5,062           138            0
+ 53    703,652,041            4,104            3,977           127            0
+ 54    703,657,343            3,744            3,625           119            0
+ 55    703,657,458              800              693           107            0
+ 56    703,665,002              912              793           119            0
+ 57    703,665,733              800              693           107            0
+ 58    703,667,445            1,768            1,653           115            0
+ 59    703,668,112            2,472            2,349           123            0
+ 60    703,668,342            2,496            2,361           135            0
+ 61    703,668,482            2,768            2,625           143            0
+94.83% (2,625B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->92.96% (2,573B) 0x8052154: wolfSSL_Malloc (memory.c:80)
+| ->34.68% (960B) 0x8060FAD: wolfSSL_new (ssl.c:175)
+| | ->34.68% (960B) 0x8050A36: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |   ->34.68% (960B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |     ->34.68% (960B) 0x407DC69: makecontext (makecontext.S:82)
+| |       
+| ->25.14% (696B) 0x80536CF: InitSSL (internal.c:1837)
+| | ->25.14% (696B) 0x8060FC8: wolfSSL_new (ssl.c:177)
+| |   ->25.14% (696B) 0x8050A36: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |     ->25.14% (696B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |       ->25.14% (696B) 0x407DC69: makecontext (makecontext.S:82)
+| |         
+| ->13.29% (368B) 0x8060E96: wolfSSL_CTX_new (ssl.c:137)
+| | ->13.29% (368B) 0x805093A: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |   ->13.29% (368B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |     ->13.29% (368B) 0x407DC69: makecontext (makecontext.S:82)
+| |       
+| ->09.54% (264B) 0x8068F91: wc_InitRng (random.c:415)
+| | ->09.54% (264B) 0x8053779: InitSSL (internal.c:1866)
+| |   ->09.54% (264B) 0x8060FC8: wolfSSL_new (ssl.c:177)
+| |     ->09.54% (264B) 0x8050A36: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |       ->09.54% (264B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |         ->09.54% (264B) 0x407DC69: makecontext (makecontext.S:82)
+| |           
+| ->04.05% (112B) 0x8061C76: wolfSSL_CertManagerNew (ssl.c:1270)
+| | ->04.05% (112B) 0x8052561: InitSSL_Ctx (internal.c:416)
+| |   ->04.05% (112B) 0x8060EB1: wolfSSL_CTX_new (ssl.c:139)
+| |     ->04.05% (112B) 0x805093A: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |       ->04.05% (112B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |         ->04.05% (112B) 0x407DC69: makecontext (makecontext.S:82)
+| |           
+| ->02.75% (76B) 0x807417D: MakeSigner (asn.c:4378)
+| | ->02.75% (76B) 0x8062740: AddCA (ssl.c:1821)
+| |   ->02.75% (76B) 0x806356B: ProcessBuffer (ssl.c:2483)
+| |     ->02.75% (76B) 0x8063A09: ProcessChainBuffer (ssl.c:2650)
+| |       ->02.75% (76B) 0x8063E9D: ProcessFile (ssl.c:3029)
+| |         ->02.75% (76B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+| |           ->02.75% (76B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |             ->02.75% (76B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |               ->02.75% (76B) 0x407DC69: makecontext (makecontext.S:82)
+| |                 
+| ->02.35% (65B) 0x80704F7: GetKey (asn.c:1817)
+| | ->02.35% (65B) 0x80718B3: DecodeToKey (asn.c:2486)
+| |   ->02.35% (65B) 0x8073DBA: ParseCertRelative (asn.c:4262)
+| |     ->02.35% (65B) 0x8073C83: ParseCert (asn.c:4212)
+| |       ->02.35% (65B) 0x8062655: AddCA (ssl.c:1793)
+| |         ->02.35% (65B) 0x806356B: ProcessBuffer (ssl.c:2483)
+| |           ->02.35% (65B) 0x8063A09: ProcessChainBuffer (ssl.c:2650)
+| |             ->02.35% (65B) 0x8063E9D: ProcessFile (ssl.c:3029)
+| |               ->02.35% (65B) 0x8064011: wolfSSL_CTX_load_verify_locations (ssl.c:3060)
+| |                 ->02.35% (65B) 0x8050993: newCoapClient (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |                   ->02.35% (65B) 0x80507D9: second_thread (in /vagrant/elliLeafNode/bin/native/elliLeafNode.elf)
+| |                     ->02.35% (65B) 0x407DC69: makecontext (makecontext.S:82)
+| |                       
+| ->01.16% (32B) in 8 places, all below massif's threshold (01.00%)
+|   
+->01.88% (52B) in 6 places, all below massif's threshold (01.00%)
+  
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 62    703,673,881            2,744            2,612           132            0
+ 63    703,673,973            2,720            2,600           120            0
+ 64    703,674,063            2,696            2,585           111            0
+ 65    703,677,168            2,672            2,573            99            0
