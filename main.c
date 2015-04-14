@@ -55,11 +55,12 @@ char t2_stack[KERNEL_CONF_STACKSIZE_MAIN];
 
 
 
+int main(void);
 int newCoapClient(void);
+void *second_thread(void *arg);
 void DatagramClient (WOLFSSL* ssl);
 int CbIORecv(WOLFSSL* ssl, char* buf, int sz, void* ctx);
 int CbIOSend(WOLFSSL* ssl, char* buf, int sz, void* ctx);
-
 
 static int shell_readc(void)
 {
@@ -105,7 +106,7 @@ int CbIORecv(WOLFSSL* ssl, char* buf, int sz, void* ctx){
       }
    }*/
    
-   recvd = socket_base_recv(sd, buf, sz, ssl->rflags);
+   recvd = socket_base_recv(sd, buf, sz, 0); //removed ssl->rflags
    
    if (recvd < 0) {
      printf("Error in CbIORecv: %i\n", recvd);
@@ -122,7 +123,7 @@ int CbIOSend(WOLFSSL* ssl, char* buf, int sz, void* ctx){
    int sent;
    int len = sz;
    
-   sent = socket_base_send(sd, &buf[sz - len], len, ssl->wflags);
+   sent = socket_base_send(sd, &buf[sz - len], len, 0); //removed ssl->wflags
    
    if (sent < 0) {
         printf("Error in CbIOSend: %i\n", sent);
@@ -188,24 +189,28 @@ int newCoapClient(void){
       
    wolfSSL_Init();
    wolfSSL_Debugging_ON();
-   
-   wolfSSL_SetIORecv(ctx, CbIORecv);
-   wolfSSL_SetIOSend(ctx, CbIOSend);
-     
+        
+   //redefine allocators used by wolfSSL to allocators of RIOT
    err = wolfSSL_SetAllocators(malloc,free,realloc);
+   //Set method to DTLSv1_2 Client
    method = wolfDTLSv1_2_client_method();
    
-   
+   //Create CTX
     if ( (ctx = wolfSSL_CTX_new(method)) == NULL) {
         fprintf(stderr, "CyaSSL_CTX_new error.\n");
         return 1;
     }
+    //Load certificates
     if ((err = wolfSSL_CTX_load_verify_locations(ctx, certs, 0) )
 	    != SSL_SUCCESS) {
         fprintf(stderr, "Error in load certificat %i\n", err);
         fprintf(stderr, "Error loading %s, please check the file.\n", certs);
         return 1;
     }
+    
+    //Redefine I/O of wolfSSL
+    wolfSSL_SetIORecv(ctx, CbIORecv);
+    wolfSSL_SetIOSend(ctx, CbIOSend);
     
     //if (CyaSSL_CTX_load_verify_locations(ctx, eccCert, 0) != SSL_SUCCESS)
      //       err_sys("can't load ca file, Please run from wolfSSL home dir");
