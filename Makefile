@@ -29,20 +29,25 @@ QUIET ?= 1
 
 # Modules to include:
 
-USEMODULE += uart0
+#USEMODULE += uart0
+#USEMODULE += shell
+#USEMODULE += shell_commands
+#USEMODULE += ps
+#USEMODULE += vtimer
+#USEMODULE += defaulttransceiver
+#USEMODULE += config
+#USEMODULE += oneway_malloc
+#USEMODULE += udp
+
 USEMODULE += shell
 USEMODULE += shell_commands
+USEMODULE += uart0
 USEMODULE += ps
 USEMODULE += vtimer
 USEMODULE += defaulttransceiver
-USEMODULE += config
-USEMODULE += oneway_malloc
+USEMODULE += rpl
 USEMODULE += udp
 USEMODULE += libwolfssl
-
-#FEATURES_OPTIONAL += transceiver
-#FEATURES_OPTIONAL += config
-#FEATURES_OPTIONAL += periph_rtc
 
 
 

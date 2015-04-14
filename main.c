@@ -25,27 +25,32 @@
 #include <stdio.h>
 #include <string.h>
 
+/*
 #include "thread.h"
 #include "posix_io.h"
 #include "shell.h"
 #include "shell_commands.h"
 #include "board_uart0.h"
-#include "malloc.h"
+#include "malloc.h"*/
+
+#include "net_if.h"
+#include "posix_io.h"
+#include "shell.h"
+#include "shell_commands.h"
+#include "board_uart0.h"
+#include "udp.h"
+#include "sixlowpan.h"
+
+#include "thread.h"
+#include "socket_base/socket.h"
+#include "net_help.h"
+#include "inet_pton.h"
 
 #include <wolfssl/ssl.h>
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/memory.h>
 
-#include "socket_base/socket.h"
-//#include <netdb.h>
-//#include <signal.h>
-//#include <sys/socket.h>
-//#include <arpa/inet.h>
-//#include <netinet/in.h>
-//#include <unistd.h>
 
-#include "net_help.h"
-#include "inet_pton.h"
 
 
 #define MAXLINE   4096
@@ -151,8 +156,13 @@ void *second_thread(void *arg)
 
 int main(void)
 {
+   /* start shell */
+    posix_open(uart0_handler_pid, 0);
+    net_if_set_src_address_mode(0, NET_IF_TRANS_ADDR_M_SHORT);
+    int id = net_if_get_hardware_address(0);
+    int id_fd = fd_init();
     shell_t shell;
-    (void) posix_open(uart0_handler_pid, 0);
+    
     
    #ifdef CYASSL_DTLS
    printf("DTLS enabled(cya)\n");
@@ -161,11 +171,13 @@ int main(void)
    printf("DTLS enabled(wolf)\n");
    #endif
    
+   //sixlowpan_lowpan_init_interface(id);
    printf("Sizeof stack: %i\n", sizeof(t2_stack));
    //printf("Length of stack: %i",t2_stack.size());
-   thread_create(t2_stack, sizeof(t2_stack), PRIORITY_MAIN ,
+   kernel_pid_t monitor_pid = thread_create(t2_stack, sizeof(t2_stack), PRIORITY_MAIN ,
                  CREATE_STACKTEST, second_thread, NULL, "helper thread");
-   //newCoapClient();
+   
+   ipv6_register_packet_handler(monitor_pid);
     (void) puts("Welcome to RIOT!");
 
     shell_init(&shell, shell_commands, UART0_BUFSIZE, shell_readc, shell_putchar);
