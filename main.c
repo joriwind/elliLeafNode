@@ -261,8 +261,8 @@ int newCoapClient(void){
     }
     
     //Redefine I/O of wolfSSL
-    wolfSSL_SetIORecv(ctx, CbIORecv);
-    wolfSSL_SetIOSend(ctx, CbIOSend);
+    //wolfSSL_SetIORecv(ctx, CbIORecv);
+    //wolfSSL_SetIOSend(ctx, CbIOSend);
     
     //if (CyaSSL_CTX_load_verify_locations(ctx, eccCert, 0) != SSL_SUCCESS)
      //       err_sys("can't load ca file, Please run from wolfSSL home dir");
