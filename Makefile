@@ -47,6 +47,7 @@ USEMODULE += vtimer
 USEMODULE += defaulttransceiver
 USEMODULE += rpl
 USEMODULE += udp
+USEMODULE += random
 USEMODULE += libwolfssl
 
 

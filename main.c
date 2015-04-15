@@ -40,6 +40,7 @@
 #include "board_uart0.h"
 #include "udp.h"
 #include "sixlowpan.h"
+#include "random.h"
 
 #include "thread.h"
 #include "socket_base/socket.h"
@@ -50,7 +51,7 @@
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/memory.h>
 
-
+//#define CUSTOM_RAND_GENERATE  rand_gen
 
 
 #define MAXLINE   4096
@@ -66,6 +67,11 @@ void *second_thread(void *arg);
 void DatagramClient (WOLFSSL* ssl);
 int CbIORecv(WOLFSSL* ssl, char* buf, int sz, void* ctx);
 int CbIOSend(WOLFSSL* ssl, char* buf, int sz, void* ctx);
+word32 rand_gen2(void);
+
+word32 rand_gen2(void){
+   return (word32)genrand_uint32();
+}
 
 static int shell_readc(void)
 {
@@ -110,8 +116,11 @@ int CbIORecv(WOLFSSL* ssl, char* buf, int sz, void* ctx){
          WOLFSSL_MSG("setsockopt rcvtimeo failed");
       }
    }*/
-   
-   recvd = socket_base_recv(sd, buf, sz, 0); //removed ssl->rflags
+   sockaddr6_t sa;
+   memset(&sa, 0, sizeof(sa));
+   wolfSSL_dtls_get_peer(ssl, &sa, sizeof(sa));
+   recvd = socket_base_recvfrom(sd, buf, sz, 0, &sa,
+                                       sizeof(sa)); //removed ssl->rflags
    
    if (recvd < 0) {
      printf("Error in CbIORecv: %i\n", recvd);
@@ -128,7 +137,11 @@ int CbIOSend(WOLFSSL* ssl, char* buf, int sz, void* ctx){
    int sent;
    int len = sz;
    
-   sent = socket_base_send(sd, &buf[sz - len], len, 0); //removed ssl->wflags
+   sockaddr6_t sa;
+   memset(&sa, 0, sizeof(sa));
+   wolfSSL_dtls_get_peer(ssl, &sa, sizeof(sa));
+   sent = socket_base_sendto(sd, &buf[sz - len], len, 0, &sa,
+                                       sizeof(sa)); //removed ssl->wflags
    
    if (sent < 0) {
         printf("Error in CbIOSend: %i\n", sent);
@@ -137,6 +150,30 @@ int CbIOSend(WOLFSSL* ssl, char* buf, int sz, void* ctx){
     return sent;
 }
 
+int readCertificate(WOLFSSL_CTX* ctx,char* certs){
+   char buff[4048];
+   char* buffer = buff;
+   FILE *fp =fopen(certs, "r");
+   if(fp == NULL){
+      printf("Error reading file");
+      return -1;
+   }
+   int rc = fgetc(fp);
+   int i = 0;
+   buffer[i] = rc;
+   i++;
+   while(!feof(fp)){
+      rc = fgetc(fp);
+      buffer[i] = rc;
+      i++;
+      if(i == 503){ //debug purposes
+         i++;
+      }
+   }
+   fclose(fp);
+   
+   return wolfSSL_CTX_load_verify_buffer(ctx, buffer,sizeof(buffer),"rb");
+}
 
 void *second_thread(void *arg)
 {
@@ -213,11 +250,14 @@ int newCoapClient(void){
         return 1;
     }
     //Load certificates
-    if ((err = wolfSSL_CTX_load_verify_locations(ctx, certs, 0) )
+    /*if ((err = wolfSSL_CTX_load_verify_locations(ctx, certs, 0) )
 	    != SSL_SUCCESS) {
         fprintf(stderr, "Error in load certificat %i\n", err);
         fprintf(stderr, "Error loading %s, please check the file.\n", certs);
         return 1;
+    }*/
+    if(readCertificate(ctx, certs) == -1){
+       return 1;
     }
     
     //Redefine I/O of wolfSSL
