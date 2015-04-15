@@ -250,15 +250,15 @@ int newCoapClient(void){
         return 1;
     }
     //Load certificates
-    /*if ((err = wolfSSL_CTX_load_verify_locations(ctx, certs, 0) )
+    if ((err = wolfSSL_CTX_load_verify_locations(ctx, certs, 0) )
 	    != SSL_SUCCESS) {
         fprintf(stderr, "Error in load certificat %i\n", err);
         fprintf(stderr, "Error loading %s, please check the file.\n", certs);
         return 1;
-    }*/
-    if(readCertificate(ctx, certs) == -1){
-       return 1;
     }
+    /*if(readCertificate(ctx, certs) == -1){
+       return 1;
+    }*/
     
     //Redefine I/O of wolfSSL
     //wolfSSL_SetIORecv(ctx, CbIORecv);
