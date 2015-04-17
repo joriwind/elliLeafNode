@@ -14,6 +14,11 @@
 #include <string.h>
 #include "main.h"
 #include "objects.h"
+/*#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>*/
+
 
 
 #define PORT 5683
@@ -23,8 +28,9 @@
 
 msg_t msg_q[RCV_MSG_Q_SIZE];
 static ipv6_addr_t prefix;
-int sockfd, if_id;;
+int sockfd, if_id;
 sockaddr6_t sa_rcv;
+socklen_t salen;
 
 
 /**
@@ -67,7 +73,7 @@ static void _init_tlayer(void)
     msg_init_queue(msg_q, RCV_MSG_Q_SIZE);
 
     net_if_set_hardware_address(0, get_hw_addr());
-    DEBUG("set hawddr to: %d\n", get_hw_addr());
+    printf("set hawddr to: %d\n", get_hw_addr());
 
     printf("initializing 6LoWPAN...\n");
 
@@ -76,8 +82,6 @@ static void _init_tlayer(void)
 
     sixlowpan_lowpan_init_interface(if_id);
 }
-
-
 
 
 void printTest(char *str) {
@@ -90,17 +94,8 @@ void printTest(char *str) {
    **/
    int CbIORecv(WOLFSSL* ssl, char* buf, int sz, void* ctx){
       int recvd;
-      int sd = *(int*)ctx;
       (void)ssl;
-      /*
-      socket_internal_t *socket;
-      sockaddr6_t sa;
-      socket = socket_base_get_socket(sd);
-      socket_t *current_socket = &socket->socket_values;
-      uint32_t saSz = sizeof(sa);
-      sa = current_socket->local_address;
-      //memset(&sa, 0, sizeof(sa));
-      */
+      (void)ctx;
       
       socklen_t len = sizeof(sa_rcv);
       
@@ -122,20 +117,28 @@ void printTest(char *str) {
     * CUSTOM_IO Send function
    **/
    int CbIOSend(WOLFSSL* ssl, char* buf, int sz, void* ctx){
-      WOLFSSL_DTLS_CTX* dtlsCtx = (WOLFSSL_DTLS_CTX*)ctx;
-      int sd = dtlsCtx->fd;
+      //WOLFSSL_DTLS_CTX* dtlsCtx = (WOLFSSL_DTLS_CTX*)ctx;
+      (void)ssl;
+      (void)ctx;
       int send;
       int len = sz;
       
+      //uint8_t buffer[128];
+      //buffer[0] = (uint8_t)buf[sz - len];
       
-      //Send data sizeof(buf)
-      send = (int)socket_base_sendto(sockfd, &buf[sz - len], len, 0, &sa_rcv, sizeof(sa_rcv)); //removed ssl->wflags
+      
+      //Send data sizeof(buf) &buf[sz - len]
+      //send = (int)socket_base_sendto(sockfd, &buf[sz - len], sz, 0, &sa_rcv, sizeof(sa_rcv)); //removed ssl->wflags
+      send = (int)socket_base_sendto(sockfd, &buf[sz - len], sz, 0, &sa_rcv, sizeof(sa_rcv)); //removed ssl->wflags
       
       if (send < 0) {
            printf("Error in CbIOSend: %i\n", send);
-       }
-    
-       return send;
+      }
+      if (send != sz){
+         printf("Error send %i bytes and data was %i bytes!\n", send, sz);
+      }
+      
+      return send;
    }
 #endif
 
@@ -173,8 +176,7 @@ void printTest(char *str) {
 /**
  * Thread
 **/
-void *second_thread(void *arg)
-{
+void *second_thread(void *arg){
     (void) arg;
     //start_DTLS_Client();
     //printTest("Testing 2th thread");
@@ -187,13 +189,13 @@ void *second_thread(void *arg)
 
 
 
-int main(void)
-{
+int main(void){
    /* start shell */
    #ifdef SHELL
       posix_open(uart0_handler_pid, 0);
       shell_t shell;
    #endif
+   printf("Staring coap server, searching for DTLS server\n");
    _init_tlayer();
     
    #ifdef CYASSL_DTLS
@@ -203,20 +205,21 @@ int main(void)
    printf("DTLS enabled(wolf)\n");
    #endif
    
-   //sixlowpan_lowpan_init_interface(id);
    printf("Sizeof stack: %i\n", sizeof(t2_stack));
    //printf("Length of stack: %i",t2_stack.size());
-   kernel_pid_t monitor_pid = thread_create(t2_stack, sizeof(t2_stack), PRIORITY_MAIN ,
-                 CREATE_STACKTEST, second_thread, NULL, "helper thread");
    
-   //ipv6_register_packet_handler(monitor_pid);
-   (void) puts("Welcome to RIOT!");
+   thread_create(t2_stack, sizeof(t2_stack), PRIORITY_MAIN ,
+                 CREATE_STACKTEST, second_thread, NULL, "dtls thread");
+   
+   
    #ifdef SHELL
       shell_init(&shell, shell_commands, UART0_BUFSIZE, shell_readc, shell_putchar);
       shell_run(&shell);
    #endif
    return 0;
 }
+
+
 
 /**
  * Create new Client and setup connection:
@@ -283,40 +286,21 @@ int newCoapClient(void){
       
    /* CUSTOM io or not?*/
    #ifdef CUSTOM_IO
-      /*
-      int     	sockfd = 0;
-      sockaddr6_t servAddr;
       
-      memset(&servAddr, 0, sizeof(servAddr));
-      servAddr.sin6_family = AF_INET;
-      servAddr.sin6_port = HTONS(SERV_PORT);
-      if (inet_pton(AF_INET6, "::1", &servAddr.sin6_addr) != 1) {
-        printf("Error and/or invalid IP address");
-        return 1;
-      }
-      printf("Got new socket object\n");
-
-      wolfSSL_dtls_set_peer(ssl, &servAddr, sizeof(servAddr));
-
-      //if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-      if ( (sockfd = socket_base_socket(PF_INET6, SOCK_DGRAM, 0)) < 0) {       
-         printf("cannot create a socket.\n"); 
-         return 1;
-      }
-
-      if (-1 == socket_base_bind(sockfd, &servAddr, sizeof(servAddr))) {
-         printf("Error bind failed!\n");
-         socket_base_close(sockfd);
-         return NULL;
-      }*/
-      
+      /** Listening socket **/
       //According to mirocoap application:
       printf("initializing receive socket...\n");
       
-      
       sa_rcv = (sockaddr6_t) { .sin6_family = AF_INET6,
-               .sin6_port = HTONS(PORT) };
-
+               .sin6_port = HTONS(PORT), .sin6_addr = HTONL(IN6ADDR_ANY_INIT) };
+      /*    
+      if (inet_pton(AF_INET6, "::1", &sa_rcv.sin6_addr) < 1) {
+         printf("Error and/or invalid IP address");
+         return 1;
+      }*/
+      
+      salen = sizeof(sa_rcv);
+      
       sockfd = socket_base_socket(PF_INET6, SOCK_DGRAM, IPPROTO_UDP);
 
       if (-1 == socket_base_bind(sockfd, &sa_rcv, sizeof(sa_rcv))) {
@@ -325,6 +309,31 @@ int newCoapClient(void){
       }
 
       printf("Ready to receive requests.\n");
+      
+      /** client socket **//*
+      printf("initializing send socket...\n");
+      
+      struct addrinfo hints, *res, *ressave;
+      //initilize addrinfo structure
+      bzero(&hints, sizeof(struct addrinfo));  
+      hints.ai_family=AF_UNSPEC;
+      hints.ai_socktype=SOCK_DGRAM;
+      hints.ai_protocol=IPPROTO_UDP;
+      
+      if((int n=getaddrinfo("::1", PORT, &hints, &res)) != 0)
+         printf("udpclient error for %s, %s: %s", "::1", PORT, gai_strerror(n));
+      ressave=res;
+      
+      do{// each of the returned IP address is tried
+         sockfd=socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+         if(sockfd>= 0)
+            break; //success
+      }while ((res=res->ai_next) != NULL);
+      
+      sa_rcv=malloc(res->ai_addrlen);
+      memcpy(sa_rcv, res->ai_addr, res->ai_addrlen);
+      salen=res->ai_addrlen;
+      printf("Ready to send ,socket...\n");*/
       
       //Set socket, does it do anything good?
       wolfSSL_set_fd(ssl, sockfd);

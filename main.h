@@ -35,6 +35,7 @@
    #include "udp.h"
    #include "net_help.h"
    #include "net_if.h"
+   #include "netinet/in.h"
 #else
    //#include <sys/types.h>
    #include <sys/socket.h>
@@ -61,6 +62,7 @@ char t2_stack[KERNEL_CONF_STACKSIZE_MAIN];
 /* Functions */
 int main(void);
 static void _init_tlayer(void);
+static uint16_t get_hw_addr(void);
 
 int newCoapClient(void);
 void *second_thread(void *arg);
