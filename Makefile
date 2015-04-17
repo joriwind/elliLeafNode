@@ -39,17 +39,19 @@ QUIET ?= 1
 #USEMODULE += oneway_malloc
 #USEMODULE += udp
 
-USEMODULE += shell
-USEMODULE += shell_commands
+#USEMODULE += shell
+#USEMODULE += shell_commands
 USEMODULE += uart0
-USEMODULE += ps
-USEMODULE += vtimer
-USEMODULE += defaulttransceiver
-USEMODULE += rpl
+USEMODULE += config
+
+USEMODULE += nativenet
+
+USEMODULE += sixlowpan
 USEMODULE += udp
+
 USEMODULE += random
 USEMODULE += libwolfssl
 
-
+USEPKG=microcoap
 
 include $(RIOTBASE)/Makefile.include
