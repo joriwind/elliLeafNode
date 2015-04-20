@@ -62,9 +62,18 @@ word32 rand_gen2(void){
    };
 #endif
 
+/**
+ * Do not use this function, it return 0: sysconfig.id is not declared!
+**/
 static uint16_t get_hw_addr(void)
 {
+   printf("Sysconfig hardware address: %i\n", sysconfig.id);
     return sysconfig.id;
+}
+
+void udpif_get_ipv6_address(ipv6_addr_t *addr, uint16_t local_addr)
+{
+    ipv6_addr_init(addr, 0xfe80, 0x0, 0x0, 0x0, 0x0, 0x00ff, 0xfe00, local_addr);
 }
 
 /* init transport layer & routing stuff*/
@@ -72,7 +81,9 @@ static void _init_tlayer(void)
 {
     msg_init_queue(msg_q, RCV_MSG_Q_SIZE);
 
-    net_if_set_hardware_address(0, get_hw_addr());
+    if(net_if_set_hardware_address(0, 1) == 0){
+       printf("Unable to set hardware address\n");
+    }
     printf("set hawddr to: %d\n", get_hw_addr());
 
     printf("initializing 6LoWPAN...\n");
@@ -80,7 +91,7 @@ static void _init_tlayer(void)
     ipv6_addr_init(&prefix, 0xABCD, 0xEF12, 0, 0, 0, 0, 0, 0);
     if_id = 0; /* having more than one interface isn't supported anyway */
 
-    sixlowpan_lowpan_init_interface(if_id);
+    //sixlowpan_lowpan_init_interface(if_id);
 }
 
 
@@ -125,6 +136,13 @@ void printTest(char *str) {
       
       //uint8_t buffer[128];
       //buffer[0] = (uint8_t)buf[sz - len];
+      
+      // set receiver address
+      /*ipv6_addr_t dst;
+      udpif_get_ipv6_address(&dst, 1);
+      // write address and port to socket address
+      memcpy(&sa_rcv.sin6_addr, &dst, sizeof(ipv6_addr_t));
+      sa_rcv.sin6_port = HTONS(PORT);*/
       
       
       //Send data sizeof(buf) &buf[sz - len]
@@ -219,6 +237,29 @@ int main(void){
    return 0;
 }
 
+void fill_nc(void)
+{
+   int numne = 2;
+   int numig = 4;
+   uint16_t neighbors[] = {33, 41};
+   uint16_t ignore[] = {23, 31, 32, 51};
+
+   ipv6_addr_t r_addr;
+   uint16_t l_addr;
+
+   for (int i = 0; i < numne; i++) {
+      printf("Adding %u as neighbor\n", neighbors[i]);
+      udpif_get_ipv6_address(&r_addr, neighbors[i]);
+      l_addr = HTONS(neighbors[i]);
+      ndp_neighbor_cache_add(0, &r_addr, &l_addr, 2, 0,
+                            NDP_NCE_STATUS_REACHABLE, 
+                            NDP_NCE_TYPE_TENTATIVE, 
+                            0xffff);
+   }
+   for (int i = 0; i < numig; i++) {
+     printf("Ignoring %u\n", ignore[i]);
+   }
+}
 
 
 /**
@@ -290,9 +331,18 @@ int newCoapClient(void){
       /** Listening socket **/
       //According to mirocoap application:
       printf("initializing receive socket...\n");
+      ipv6_addr_t r_addr;
+      uint16_t l_addr;
+      ipv6_addr_init(&r_addr, 0xfe80, 0x0, 0x0, 0x0, 0x0, 0x00ff, 0xfe00, 1);
+      l_addr = HTONS(1);
+      ndp_neighbor_cache_add(0, &r_addr, &l_addr, 2, 0, NDP_NCE_STATUS_REACHABLE,
+                           NDP_NCE_TYPE_TENTATIVE, 0xffff);
       
+      //sa_rcv = (sockaddr6_t) { .sin6_family = AF_INET6,
+      //         .sin6_port = HTONS(PORT), .sin6_addr = HTONS("::1") };
       sa_rcv = (sockaddr6_t) { .sin6_family = AF_INET6,
-               .sin6_port = HTONS(PORT), .sin6_addr = HTONL(IN6ADDR_ANY_INIT) };
+               .sin6_port = HTONS(PORT), .sin6_addr = r_addr };
+      
       /*    
       if (inet_pton(AF_INET6, "::1", &sa_rcv.sin6_addr) < 1) {
          printf("Error and/or invalid IP address");

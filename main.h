@@ -35,7 +35,8 @@
    #include "udp.h"
    #include "net_help.h"
    #include "net_if.h"
-   #include "netinet/in.h"
+   //#include "netinet/in.h"
+   #include "socket_base/socket.h"
 #else
    //#include <sys/types.h>
    #include <sys/socket.h>
