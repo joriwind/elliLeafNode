@@ -33,6 +33,7 @@ sockaddr6_t sa_rcv, sa_snd;
 
 uint8_t scratch_raw[BUFSZ];
 coap_rw_buffer_t scratch_buf = {scratch_raw, sizeof(scratch_raw)};
+static coap_endpoint_path_t path = {1, {"node"}};
 
 
 /**
@@ -331,7 +332,7 @@ int newCoapClient(void){
       uint16_t l_addr;
       int address = 1;
       //ipv6_addr_init(&r_addr, 0xfe80, 0x0, 0x0, 0x0, 0x0, 0x00ff, 0xfe00, 1);
-      ipv6_addr_init(&r_addr, 0xabcd, 0x0, 0x0, 0x0, 0x0, 0x00ff, 0xfe00, (uint16_t)address);
+      //ipv6_addr_init(&r_addr, 0xabcd, 0x0, 0x0, 0x0, 0x0, 0x00ff, 0xfe00, (uint16_t)address);
       //ipv6_addr_init(&r_addr, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, (uint16_t)address);
       //ipv6_addr_init(&r_addr, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, (uint16_t)0);
       //ipv6_addr_set_all_routers_addr(&r_addr);
@@ -340,8 +341,9 @@ int newCoapClient(void){
                            NDP_NCE_TYPE_TENTATIVE, 0xffff);
       
       
-      sa_snd = (sockaddr6_t) { .sin6_family = AF_INET,
-               .sin6_port = HTONS(SERVER_PORT), .sin6_addr = r_addr };
+      sa_snd = (sockaddr6_t) { .sin6_family = AF_INET6,
+               .sin6_port = HTONS(SERVER_PORT) };
+      inet_pton(AF_INET6, "::1", &sa_snd.sin6_addr);
       
       memset(&sa_rcv, 0, sizeof(sa_rcv));
       sa_rcv.sin6_family = AF_INET6;
@@ -356,11 +358,27 @@ int newCoapClient(void){
       sock_snd = socket_base_socket(PF_INET6, SOCK_DGRAM, IPPROTO_UDP);
       sock_rcv = socket_base_socket(PF_INET6, SOCK_DGRAM, IPPROTO_UDP);
       
-
+      if(sock_snd == -1){
+         printf("Error creating send socket!");
+         
+      }else{
+         
+         /* Sending message to all that I am available for communication! */
+         char buf[128];
+         int rsplen = sizeof(buf);
+         printf("Sending multicast to everyone to let know I exist!");
+         if (0 == coap_ext_build_PUT(buf, &rsplen, "", &path)) {
+            socket_base_sendto(sock_snd, buf, rsplen, 0, &sa_snd, sizeof(sa_snd));
+            printf("[main-posix] PUT with payload %s sent to %s:%i\n", buf, "::1", sa_snd.sin6_port);
+         }
+         
+      }
+      //Check if bind succeeds
       if (-1 == socket_base_bind(sock_rcv, &sa_rcv, sizeof(sa_rcv))) {
          printf("Error: bind to receive socket failed!\n");
          socket_base_close(sock_rcv);
       }
+      
 
       printf("Ready to receive requests.\n");
       
