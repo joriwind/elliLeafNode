@@ -3,7 +3,7 @@
  * @{
  *
  * @file
- * @brief       Coap server using UPD with DTLS security
+ * @brief       Coap client using UPD with DTLS security
  *
  * @author      Jori Winderickx
  *
@@ -23,16 +23,11 @@
 
 #define PORT 5683
 #define BUFSZ 128
-#define SERVER_PORT  (0xFF01)
+#define SERVER_PORT  5684
 
-int certificates = 1;
-int shutdown = 0;
 
 int sock_snd, sock_rcv, if_id;
 sockaddr6_t sa_rcv, sa_snd;
-
-uint8_t scratch_raw[BUFSZ];
-coap_rw_buffer_t scratch_buf = {scratch_raw, sizeof(scratch_raw)};
 
 
 /**
@@ -248,20 +243,6 @@ void fill_nc(void)
    }
 }
 
-void loadCertificates(WOLFSSL_CTX* ctx){
-   if(certificates){
-      if (wolfSSL_CTX_use_certificate_file(ctx, eccCert, SSL_FILETYPE_PEM)
-                != SSL_SUCCESS)
-         printf("can't load server cert file\n");
-
-      if (wolfSSL_CTX_use_PrivateKey_file(ctx, eccKey, SSL_FILETYPE_PEM)
-             != SSL_SUCCESS)
-         printf("can't load server key file\n");
-   }else{
-      //TODO: PSK
-   }
-}
-
 
 /**
  * Create new Client and setup connection:
@@ -273,8 +254,8 @@ int newCoapClient(void){
    WOLFSSL_METHOD* method = 0;
    
    //char        cert_array[]  = "./certs/ca-cert.pem";
-   //char        cert_array[]  = "./certs/server-ecc.pem";
-   //char*       certs = cert_array;
+   char        cert_array[]  = "./certs/server-ecc.pem";
+   char*       certs = cert_array;
    const char* cipherList = "ECDHE-ECDSA-AES128-CCM-8";
    int err;
       
@@ -284,7 +265,7 @@ int newCoapClient(void){
    //redefine allocators used by wolfSSL to allocators of RIOT
    err = wolfSSL_SetAllocators(malloc,free,realloc);
    //Set method to DTLSv1_2 Client
-   method = wolfDTLSv1_2_server_method();
+   method = wolfDTLSv1_2_client_method();
    
    //Create CTX
    if ( (ctx = wolfSSL_CTX_new(method)) == NULL) {
@@ -294,8 +275,12 @@ int newCoapClient(void){
    
    //Load certificates
    #ifndef NO_FILESYSTEM
-      loadCertificates(ctx);
-      
+      if ((err = wolfSSL_CTX_load_verify_locations(ctx, certs, 0) )
+       != SSL_SUCCESS) {
+         fprintf(stderr, "Error in load certificat %i\n", err);
+         fprintf(stderr, "Error loading %s, please check the file.\n", certs);
+         return 1;
+      }
    #else
       if(readCertificate(ctx, certs) == -1){
          return 1;
@@ -331,12 +316,12 @@ int newCoapClient(void){
       uint16_t l_addr;
       int address = 1;
       //ipv6_addr_init(&r_addr, 0xfe80, 0x0, 0x0, 0x0, 0x0, 0x00ff, 0xfe00, 1);
-      ipv6_addr_init(&r_addr, 0xabcd, 0x0, 0x0, 0x0, 0x0, 0x00ff, 0xfe00, (uint16_t)address);
-      //ipv6_addr_init(&r_addr, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, (uint16_t)address);
+      //ipv6_addr_init(&r_addr, 0xabcd, 0x0, 0x0, 0x0, 0x0, 0x00ff, 0xfe00, (uint16_t)address);
+      ipv6_addr_init(&r_addr, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, (uint16_t)address);
       //ipv6_addr_init(&r_addr, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, (uint16_t)0);
       //ipv6_addr_set_all_routers_addr(&r_addr);
-      l_addr = HTONS(1);
-      ndp_neighbor_cache_add(0, &r_addr, &l_addr, 1, 0, NDP_NCE_STATUS_REACHABLE,
+      l_addr = HTONS(0);
+      ndp_neighbor_cache_add(0, &r_addr, &l_addr, 0, 0, NDP_NCE_STATUS_REACHABLE,
                            NDP_NCE_TYPE_TENTATIVE, 0xffff);
       
       
@@ -344,7 +329,7 @@ int newCoapClient(void){
                .sin6_port = HTONS(SERVER_PORT), .sin6_addr = r_addr };
       
       memset(&sa_rcv, 0, sizeof(sa_rcv));
-      sa_rcv.sin6_family = AF_INET6;
+      sa_rcv.sin6_family = AF_INET;
       sa_rcv.sin6_port = HTONS(SERVER_PORT);
 
       /*    
@@ -353,8 +338,8 @@ int newCoapClient(void){
          return 1;
       }*/
             
-      sock_snd = socket_base_socket(PF_INET6, SOCK_DGRAM, IPPROTO_UDP);
-      sock_rcv = socket_base_socket(PF_INET6, SOCK_DGRAM, IPPROTO_UDP);
+      sock_snd = socket_base_socket(PF_INET6, SOCK_DGRAM, 0);
+      sock_rcv = socket_base_socket(PF_INET6, SOCK_DGRAM, 0);
       
 
       if (-1 == socket_base_bind(sock_rcv, &sa_rcv, sizeof(sa_rcv))) {
@@ -426,33 +411,16 @@ int newCoapClient(void){
       wolfSSL_set_fd(ssl, sockfd);
       //Set socket, does it do anything good?
    #endif
-   
-   int not_connected = 1;
-   
-   while(not_connected){
-      int n, rc;
-      socklen_t len = sizeof(sa_rcv);
-      char buf[128];
-      //coap_packet_t pkt;
-      printf("Trying to receive something\n");
-      //n = socket_base_recvfrom(sock_rcv, buf, sizeof(buf), 0, &sa_rcv, &len);
-      //if(n<=0){
-      //   printf("Something went wrong with recvfrom\n");
-      //}else{
-      //   printf("Got %i bytes\n", n);
-      //}
-      ssl = wolfSSL_new(ctx);
-      if (wolfSSL_accept(ssl) != SSL_SUCCESS) {
-         printf("SSL_accept failed\n");
-         wolfSSL_free(ssl);
-         //socket_base_close(clientfd);
-         continue;
-      }else{
-         not_connected = 0;
-         DatagramClient(ssl);
-         
-      }
+      
+    
+   if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
+      int err1 = wolfSSL_get_error(ssl, 0);
+      printf("err = %d, %s\n", err1, wolfSSL_ERR_reason_error_string(err1));
+      printf("SSL_connect failed");
+      return 1;
    }
+
+   DatagramClient(ssl);
 
    wolfSSL_shutdown(ssl);
    wolfSSL_free(ssl);
@@ -473,45 +441,26 @@ int newCoapClient(void){
 /* Send and receive function */
 void DatagramClient (WOLFSSL* ssl) 
 {
-   char    buf[128];
-   int     echoSz = 0;
-   coap_packet_t pkt;
-   int rc;
-   while (!shutdown) {
-      if((echoSz = wolfSSL_read(ssl, buf, sizeof(buf)-1)) > 0){
-         if(echoSz > 0){
-            printf("Received packet: ")
-            coap_dump(buf, echoSz, true);
-            printf("\n");
-            
-            if(0 != (rc = coap_parse(&pkt, buf, echoSz))){
-               printf("Bad packet rc=%d\n", rc);
-               
-            }else{
-               size_t rsplen = sizeof(buf);
-               coap_packet_t rsppkt;
-               printf("content:\n");
-               coap_dumpPacket(&pkt);
-               coap_handle_req(&scratch_buf, &pkt, &rsppkt);
+    int  n = 0;
+    char sendLine[MAXLINE], recvLine[MAXLINE - 1];
 
-               if (0 != (rc = coap_build(buf, &rsplen, &rsppkt)))
-                   printf("coap_build failed rc=%d\n", rc);
-               else
-               {
-                  printf("Sending packet: ");
-                  coap_dump(buf, rsplen, true);
-                  printf("\n");
-                  printf("content:\n");
-                  coap_dumpPacket(&rsppkt);
-                  if(wolfSSL_write(ssl, buf, rsplen)){
-                  printf("SSL_write failed\n");
-                  }
-               }
+    while ((unsigned)fgets(sendLine, MAXLINE, stdin) != NULL) {
+    
+       if ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) != 
+	      strlen(sendLine)) {
+            printf("SSL_write failed");
+        }
+
+       n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1);
+       
+       if (n < 0) {
+            int readErr = wolfSSL_get_error(ssl, 0);
+	        if(readErr != SSL_ERROR_WANT_READ) {
+		        printf("CyaSSL_read failed");
             }
-         }
-         printf("Packet processed\n");
-         //TODO: the rest
- 
-      }
-   }
+       }
+
+        recvLine[n] = '\0';  
+        fputs(recvLine, stdout);
+    }
 }

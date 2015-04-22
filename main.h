@@ -52,6 +52,11 @@
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/memory.h>
 
+#include "coap_ext.h"
+
+#define eccCert    "./certs/server-ecc.pem"
+#define eccKey     "./certs/ecc-key.pem"
+
 //#define CUSTOM_RAND_GENERATE  rand_gen
 
 #define MAXLINE   4096
@@ -68,6 +73,7 @@ static uint16_t get_hw_addr(void);
 int newCoapClient(void);
 void *second_thread(void *arg);
 void DatagramClient (WOLFSSL* ssl);
+void loadCertificates(WOLFSSL_CTX* ctx);
 int CbIORecv(WOLFSSL* ssl, char* buf, int sz, void* ctx);
 int CbIOSend(WOLFSSL* ssl, char* buf, int sz, void* ctx);
 word32 rand_gen2(void);

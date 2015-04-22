@@ -46,7 +46,6 @@ USEMODULE += config
 
 USEMODULE += nativenet
 
-USEMODULE += sixlowpan
 USEMODULE += udp
 
 USEMODULE += random
