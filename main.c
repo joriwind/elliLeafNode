@@ -22,7 +22,7 @@
 
 
 #define PORT 5683
-#define BUFSZ 128
+#define BUFSZ 1024
 #define SERVER_PORT  (0xFF01)
 
 int certificates = 1;
@@ -34,6 +34,18 @@ sockaddr6_t sa_rcv, sa_snd;
 uint8_t scratch_raw[BUFSZ];
 coap_rw_buffer_t scratch_buf = {scratch_raw, sizeof(scratch_raw)};
 static coap_endpoint_path_t path = {1, {"node"}};
+
+#define RCV_MSG_Q_SIZE      (64)
+msg_t msg_q[RCV_MSG_Q_SIZE];
+
+typedef struct buffer_data {
+    char* cipher_receive[BUFSZ];
+    char* cipher_send[BUFSZ];
+    char* clear_receive[BUFSZ];
+    char* clear_send[BUFSZ];
+} buffer_data;
+
+buffer_data* buffers;
 
 
 /**
@@ -82,15 +94,16 @@ void udpif_get_ipv6_address(ipv6_addr_t *addr, uint16_t local_addr)
 /* init transport layer & routing stuff*/
 static void _init_tlayer(void)
 {
+   msg_init_queue(msg_q, RCV_MSG_Q_SIZE);
    if(net_if_set_hardware_address(0, 1) == 0){
       printf("Unable to set hardware address\n");
    }
     net_if_set_src_address_mode(0, NET_IF_TRANS_ADDR_M_SHORT);
-    printf("set hawddr to: %d\n", net_if_get_hardware_address(0));
+    printf("Hardware address of node: %d\n", net_if_get_hardware_address(0));
 
     //printf("initializing 6LoWPAN...\n");
 
-    //sixlowpan_lowpan_init_interface(if_id);
+    sixlowpan_lowpan_init_interface(0);
 }
 
 
@@ -132,8 +145,10 @@ void printTest(char *str) {
       (void)ctx;
       int send;
       int len = sz;
-      
-      send = (int)socket_base_sendto(sock_snd, &buf[sz - len], sz, 0, &sa_snd, sizeof(sa_snd)); //removed ssl->wflags
+      if(sz > 128){
+         printf("HOOOWJO");
+      }
+      send = (int)socket_base_sendto(sock_rcv, &buf[sz-len], sz, 0, &sa_rcv, sizeof(sa_rcv)); //removed ssl->wflags
       
       if (send < 0) {
            printf("Error in CbIOSend: %i\n", send);
@@ -145,6 +160,28 @@ void printTest(char *str) {
       }
       
       return send;
+   }
+   
+   /**
+    * CUSTOM_IO GenCookie function
+   **/
+   int CbIOGenCookie(WOLFSSL* ssl, byte *buf, int sz, void *ctx){
+      socklen_t peerSz = sizeof(sa_rcv);
+      byte digest[SHA_DIGEST_SIZE];
+      int  ret = 0;
+      
+      (void)ssl;
+      (void)ctx;
+   
+      ret = wc_ShaHash((byte*)&sa_rcv, peerSz, digest);
+      if (ret != 0)
+         return ret;
+
+      if (sz > SHA_DIGEST_SIZE)
+         sz = SHA_DIGEST_SIZE;
+      XMEMCPY(buf, digest, sz);
+
+      return sz;
    }
 #endif
 
@@ -308,6 +345,7 @@ int newCoapClient(void){
       //Redefine I/O of wolfSSL
       wolfSSL_SetIORecv(ctx, CbIORecv);
       wolfSSL_SetIOSend(ctx, CbIOSend);
+      wolfSSL_CTX_SetGenCookie(ctx, CbIOGenCookie);
    #endif
    
    //set cipher list
@@ -320,8 +358,13 @@ int newCoapClient(void){
     if (ssl == NULL) {
     	printf("unable to get ssl object\n");
         return 1;
+    }else{
+      #ifdef CUSTOM_IO
+         wolfSSL_SetIOReadCtx(ssl, buffers);
+         wolfSSL_SetIOWriteCtx(ssl, buffers);
+      #endif
+    	printf("Got new ssl object\n");
     }
-    	printf("Get new ssl object\n");
       
    /* CUSTOM io or not?*/
    #ifdef CUSTOM_IO
@@ -332,8 +375,9 @@ int newCoapClient(void){
       uint16_t l_addr;
       int address = 1;
       //ipv6_addr_init(&r_addr, 0xfe80, 0x0, 0x0, 0x0, 0x0, 0x00ff, 0xfe00, 1);
+      
       //ipv6_addr_init(&r_addr, 0xabcd, 0x0, 0x0, 0x0, 0x0, 0x00ff, 0xfe00, (uint16_t)address);
-      //ipv6_addr_init(&r_addr, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, (uint16_t)address);
+      ipv6_addr_init(&r_addr, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, (uint16_t)address);
       //ipv6_addr_init(&r_addr, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, (uint16_t)0);
       //ipv6_addr_set_all_routers_addr(&r_addr);
       l_addr = HTONS(1);
@@ -344,10 +388,15 @@ int newCoapClient(void){
       sa_snd = (sockaddr6_t) { .sin6_family = AF_INET6,
                .sin6_port = HTONS(SERVER_PORT) };
       inet_pton(AF_INET6, "::1", &sa_snd.sin6_addr);
-      
+      sa_snd.sin6_family = AF_INET6;
+      sa_snd.sin6_port = 5684;
+       
+      sa_rcv = (sockaddr6_t) { .sin6_family = AF_INET6,
+               .sin6_port = HTONS(5683) }; //This made the No Pid found for UDP packet
+      /*
       memset(&sa_rcv, 0, sizeof(sa_rcv));
       sa_rcv.sin6_family = AF_INET6;
-      sa_rcv.sin6_port = HTONS(SERVER_PORT);
+      sa_rcv.sin6_port = HTONS(SERVER_PORT);*/
 
       /*    
       if (inet_pton(AF_INET6, "::1", &sa_rcv.sin6_addr) < 1) {
@@ -363,13 +412,17 @@ int newCoapClient(void){
          
       }else{
          
+         socket_base_print_sockets();
          /* Sending message to all that I am available for communication! */
          char buf[128];
          int rsplen = sizeof(buf);
-         printf("Sending multicast to everyone to let know I exist!");
+         printf("Sending multicast to everyone to let know I exist!\n");
          if (0 == coap_ext_build_PUT(buf, &rsplen, "", &path)) {
-            socket_base_sendto(sock_snd, buf, rsplen, 0, &sa_snd, sizeof(sa_snd));
-            printf("[main-posix] PUT with payload %s sent to %s:%i\n", buf, "::1", sa_snd.sin6_port);
+            if(socket_base_sendto(sock_snd, buf, rsplen, 0, &sa_snd, sizeof(sa_snd)) > 1){
+               printf("[main-posix] PUT with payload sent to %s:%i\n", "::1", sa_snd.sin6_port);
+            }else{
+               printf("Somthing went wrong with sending HELLO I AM CoAP SERVER!\n");
+            }
          }
          
       }
@@ -384,7 +437,10 @@ int newCoapClient(void){
       
       /** client socket **/
       
-      wolfSSL_set_fd(ssl, sock_rcv);
+      /*if(wolfSSL_set_fd(ssl, sock_rcv) != SSL_SUCCESS){
+         printf("Unable to set socket");
+         return -1;
+      }*/
       
    #else
       int sockfd = 0;
@@ -448,9 +504,9 @@ int newCoapClient(void){
    int not_connected = 1;
    
    while(not_connected){
-      int n, rc;
-      socklen_t len = sizeof(sa_rcv);
-      char buf[128];
+      //int n, rc;
+      //socklen_t len = sizeof(sa_rcv);
+      //char buf[128];
       //coap_packet_t pkt;
       printf("Trying to receive something\n");
       //n = socket_base_recvfrom(sock_rcv, buf, sizeof(buf), 0, &sa_rcv, &len);

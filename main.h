@@ -51,6 +51,7 @@
 #include <wolfssl/ssl.h>
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/memory.h>
+#include <wolfssl/wolfcrypt/asn.h>
 
 #include "coap_ext.h"
 
@@ -62,8 +63,10 @@
 #define MAXLINE   4096
 #define SERV_PORT 5683 
 
+#define SHA_DIGEST_SIZE 20
+
 //Setting size of thread stack, to max
-char t2_stack[KERNEL_CONF_STACKSIZE_MAIN];
+char t2_stack[KERNEL_CONF_STACKSIZE_DEFAULT];
 
 /* Functions */
 int main(void);
@@ -76,4 +79,5 @@ void DatagramClient (WOLFSSL* ssl);
 void loadCertificates(WOLFSSL_CTX* ctx);
 int CbIORecv(WOLFSSL* ssl, char* buf, int sz, void* ctx);
 int CbIOSend(WOLFSSL* ssl, char* buf, int sz, void* ctx);
+int CbIOGenCookie(WOLFSSL* ssl, byte *buf, int sz, void *ctx);
 word32 rand_gen2(void);
