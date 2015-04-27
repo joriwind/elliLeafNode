@@ -52,6 +52,7 @@
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/memory.h>
 #include <wolfssl/wolfcrypt/asn.h>
+#include <wolfssl/wolfcrypt/random.h>
 
 #include "coap_ext.h"
 
@@ -80,4 +81,4 @@ void loadCertificates(WOLFSSL_CTX* ctx);
 int CbIORecv(WOLFSSL* ssl, char* buf, int sz, void* ctx);
 int CbIOSend(WOLFSSL* ssl, char* buf, int sz, void* ctx);
 int CbIOGenCookie(WOLFSSL* ssl, byte *buf, int sz, void *ctx);
-word32 rand_gen2(void);
+word32 rand_generator(void);

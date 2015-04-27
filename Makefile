@@ -47,6 +47,8 @@ USEMODULE += config
 USEMODULE += nativenet
 
 USEMODULE += udp
+#USEMODULE += ng_udp
+#USEMODULE += ng_ipv6
 
 USEMODULE += random
 USEMODULE += libwolfssl

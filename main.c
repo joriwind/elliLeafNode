@@ -50,8 +50,9 @@ buffer_data* buffers;
 
 /**
  * Function not yet used!
+ * Random number generator
 **/
-word32 rand_gen2(void){
+word32 rand_generator(void){
    return (word32)genrand_uint32();
 }
 #ifdef SHELL
@@ -104,6 +105,7 @@ static void _init_tlayer(void)
     //printf("initializing 6LoWPAN...\n");
 
     sixlowpan_lowpan_init_interface(0);
+    wolfSSL_SetRand_gen(rand_generator);
 }
 
 
