@@ -20,9 +20,10 @@
 
 #include "posix_io.h"
 #ifdef SHELL
-   #include "shell.h"
-   #include "shell_commands.h"
 #endif
+
+#include "shell.h"
+#include "shell_commands.h"
 #include "periph/cpuid.h" 
 #include "board_uart0.h"
 #include "random.h"
@@ -31,14 +32,16 @@
 
 
 #ifdef CUSTOM_IO
-   #include "net/ng_ipv6/addr.h"
-   #include "net/ng_udp.h"
-   
-   #include "udp_handler.h"
-   
-   #include "net/ng_netif.h"
-   //#include "net/ng_socket.h"
-   #include "net/ng_netbase.h"
+    #include "net/ng_netbase.h"
+    #include "net/ng_nomac.h"
+    #include "net/ng_pktdump.h"
+    #include "net/ng_netdev_eth.h"
+    #include "net/ng_ipv6.h"
+    #include "net/ng_udp.h"
+    #include "net/dev_eth.h"
+    #include "dev_eth_tap.h"
+    #include "udp_handler.h"
+    #include "net/ng_nomac.h"
 #else
    //#include <sys/types.h>
    //#include <sys/socket.h>
@@ -82,3 +85,4 @@ void DatagramClient (WOLFSSL* ssl);
 void loadCertificates(WOLFSSL_CTX* ctx);
 int CbIOGenCookie(WOLFSSL* ssl, byte *buf, int sz, void *ctx);
 word32 rand_generator(void);
+static int init_ipv6_linklocal(kernel_pid_t net_if, uint8_t *mac);

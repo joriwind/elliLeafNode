@@ -38,7 +38,10 @@ int udp_init(char* src_port){
    _server.demux_ctx = (uint32_t)port;
    ng_netreg_register(NG_NETTYPE_UDP, &_server);
    
-   
+   //if(ng_netif_add(_server.pid) < 0){
+   //    printf("Adding thread as interface faled\n");
+   //    return -1;
+   //}
    /* initialize message queue */
    msg_init_queue(msg_q, RCV_MSG_Q_SIZE);
    

@@ -15,12 +15,20 @@
 #include "main.h"
 #include "objects.h"
 
+#define NOMAC_STACK_SIZE (KERNEL_CONF_STACKSIZE_DEFAULT)
+/**
+ * @brief   Stack for the nomac thread
+ */
+static char nomac_stack[NOMAC_STACK_SIZE];
+
+#define MAC_PRIO                (PRIORITY_MAIN - 4)
+
 #define PORT 5683
 #define BUFSZ 1024
 #define SERVER_PORT  (0xFF01)
 
 int certificates = 1;
-int shutdown = 0;
+int shutdown_server = 0;
 
 ng_ipv6_addr_t* srcAddress;
 
@@ -28,6 +36,10 @@ uint8_t scratch_raw[BUFSZ];
 coap_rw_buffer_t scratch_buf = {scratch_raw, sizeof(scratch_raw)};
 static coap_endpoint_path_t path = {1, {"node"}};
 
+/**
+ * @brief   Buffer size used by the shell
+ */
+#define SHELL_BUFSIZE           (64U)
 
 typedef struct buffer_data {
     char* cipher_receive[BUFSZ];
@@ -68,6 +80,22 @@ word32 rand_generator(void){
     { NULL, NULL, NULL }
    };
 #endif
+   
+   /**
+ * @Brief   Read chars from STDIO
+ */
+static int shell_read(void)
+{
+    return (int)getchar();
+}
+
+/**
+ * @brief   Write chars to STDIO
+ */
+static void shell_put(int c)
+{
+    putchar((char)c);
+}
 
 /**
  * Do not use this function, it return 0: sysconfig.id is not declared!
@@ -82,7 +110,12 @@ static uint16_t get_hw_addr(void)
 /* init transport layer & routing stuff*/
 static void _init_tlayer(void)
 {
-   
+    
+
+    int res;
+    kernel_pid_t netif;
+    size_t num_netif;
+    
    //if(net_if_set_hardware_address(0, 1) == 0){
    //   printf("Unable to set hardware address\n");
    //}
@@ -90,16 +123,158 @@ static void _init_tlayer(void)
    //printf("Hardware address of node: %d\n", net_if_get_hardware_address(0));
 
    //printf("initializing 6LoWPAN...\n");
+   
+   /* initialize network module(s) */
+    ng_netif_init();
 
+    /* initialize IPv6 interfaces */
+    ng_ipv6_netif_init();
+
+    /* initialize netdev_eth layer */
+    ng_netdev_eth_init(&ng_netdev_eth, (dev_eth_t *)&dev_eth_tap);
+   
+    /* start MAC layer */
+    res = ng_nomac_init(nomac_stack, sizeof(nomac_stack), MAC_PRIO,
+                        "eth_mac", (ng_netdev_t *)&ng_netdev_eth);
+   
+    /* initialize IPv6 addresses */
+    netif = *(ng_netif_get(&num_netif));
+
+    if (num_netif > 0) {
+
+        printf("Found %i active interface\n", num_netif);
+        ng_ipv6_netif_reset_addr(netif);
+        res = init_ipv6_linklocal(netif, dev_eth_tap.addr);
+
+        if (res < 0) {
+            printf("link-local address initialization failed %i\n", res);
+        }
+        else {
+            printf("Successfully initialized link-local adresses on first interface\n");
+        }
+        
+        ng_ipv6_addr_t global_addr;
+        ng_ipv6_addr_from_str(&global_addr, HOST_IP);
+        res = ng_ipv6_netif_add_addr(netif, &global_addr, 64, 0);
+
+        if (res < 0) {
+            printf("Global address initialization failed %i\n", res);
+        }
+        
+        char mac_buf[32];
+        uint8_t remote_mac[6];
+        ng_ipv6_addr_t remote_addr;
+        /* Setup neighbour cache while NDP is unavailable */
+        ng_ipv6_addr_from_str(&remote_addr, REMOTE_IP);
+
+        memcpy(&mac_buf, REMOTE_MAC, 18);
+        ng_netif_addr_from_str(&remote_mac[0],
+                               6,
+                               &mac_buf[0]);
+
+        res = ng_ipv6_nc_add(netif, &remote_addr, &remote_mac[0], 6, 0);
+
+        if (res < 0) {
+            printf("setup of neighbour cache failed %i", res);
+        }
+    }else {
+        printf("No active interfaces %i\n", num_netif);
+    }
+    
+    
+    udp_init("1");
+    
    //sixlowpan_lowpan_init_interface(0);
    wolfSSL_SetRand_gen(rand_generator);
-   udp_init("1");
+   
+   
 }
 
 
 void printTest(char *str) {
     printf("%s\n",str);
 }
+
+
+/**
+ * @brief   Setup a MAC-derived link-local, solicited-nodes and multicast address
+ *          on IPv6 interface @p net_if.
+ */
+static int init_ipv6_linklocal(kernel_pid_t net_if, uint8_t *mac)
+{
+    char addr_buf[NG_IPV6_ADDR_MAX_STR_LEN];
+    ng_ipv6_addr_t link_local, solicited, multicast;
+    uint8_t eui64[8] = {0, 0, 0, 0xFF, 0xFE, 0, 0, 0};
+    int res;
+
+    /* Generate EUI-64 from MAC address */
+    memcpy(&eui64[0], &mac[0], 3);
+    memcpy(&eui64[5], &mac[3], 3);
+    eui64[0] ^= 1 << 1;
+
+    /* Generate link-local address from local prefix and EUI-64 */
+    ng_ipv6_addr_set_link_local_prefix(&link_local);
+    ng_ipv6_addr_set_aiid(&link_local, &eui64[0]);
+
+    res = ng_ipv6_netif_add_addr(net_if,
+                                 &link_local,
+                                 64,
+                                 false);
+
+    if (res != 0) {
+        return printf("setting link-local address failed %i\n", res);
+    }
+    else {
+        printf("link-local address: %s\n",
+              ng_ipv6_addr_to_str(&addr_buf[0],
+                                  &link_local,
+                                  NG_IPV6_ADDR_MAX_STR_LEN));
+    }
+
+    ng_ipv6_addr_set_solicited_nodes(&solicited, &link_local);
+
+    res = ng_ipv6_netif_add_addr(net_if,
+                                 &solicited,
+                                 NG_IPV6_ADDR_BIT_LEN,
+                                 false);
+
+    if (res != 0) {
+        return printf("setting solicited-nodes address failed %i\n", res);
+    }
+    else {
+        printf("solicited-nodes address: %s\n",
+              ng_ipv6_addr_to_str(&addr_buf[0],
+                                  &solicited,
+                                  NG_IPV6_ADDR_MAX_STR_LEN));
+    }
+
+    /* Setup multicast address */
+    memcpy(&multicast, &link_local, sizeof(ng_ipv6_addr_t));
+
+    ng_ipv6_addr_set_multicast(&multicast,
+                               NG_IPV6_ADDR_MCAST_FLAG_TRANSIENT |   // No RP, temporary
+                               NG_IPV6_ADDR_MCAST_FLAG_PREFIX_BASED, // unicast/prefix based
+                               NG_IPV6_ADDR_MCAST_SCP_LINK_LOCAL);   // link-local scope
+
+    res = ng_ipv6_netif_add_addr(net_if,
+                                 &multicast,
+                                 NG_IPV6_ADDR_BIT_LEN,
+                                 false);
+
+    if (res != 0) {
+        printf("setting multicast address failed %i\n", res);
+        return -1;
+    }
+    else {
+        printf("multicast address: %s\n",
+              ng_ipv6_addr_to_str(&addr_buf[0],
+                                  &multicast,
+                                  NG_IPV6_ADDR_MAX_STR_LEN));
+    }
+
+    return 0;
+}
+
 
 #ifdef CUSTOM_IO
    
@@ -175,6 +350,8 @@ void *second_thread(void *arg){
 
 int main(void){
    /* start shell */
+    
+    shell_t shell;
    #ifdef SHELL
       posix_open(uart0_handler_pid, 0);
       shell_t shell;
@@ -200,6 +377,9 @@ int main(void){
       shell_init(&shell, shell_commands, UART0_BUFSIZE, shell_readc, shell_putchar);
       shell_run(&shell);
    #endif
+/* start the shell */
+    //shell_init(&shell, NULL, SHELL_BUFSIZE, shell_read, shell_put);
+    //shell_run(&shell);
    return 0;
 }
 
@@ -446,7 +626,7 @@ void DatagramClient (WOLFSSL* ssl)
    int     echoSz = 0;
    coap_packet_t pkt;
    int rc;
-   while (!shutdown) {
+   while (!shutdown_server) {
       if((echoSz = wolfSSL_read(ssl, buf, sizeof(buf)-1)) > 0){
          if(echoSz > 0){
             printf("Received packet: ")
