@@ -27,28 +27,25 @@ CFLAGS += -DDEVELHELP -DSCHEDSTATISTICS
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1
 
+# The global ip adress to set on startup
+CFLAGS += -DHOST_IP=\"fddf:dead:beef::1\"
+
+# This will be filled into the neighbour cache on startup
+CFLAGS += -DREMOTE_IP=\"fddf:dead:beef::2\"
+
 # Modules to include:
 
-#USEMODULE += uart0
-#USEMODULE += shell
-#USEMODULE += shell_commands
-#USEMODULE += ps
-#USEMODULE += vtimer
-#USEMODULE += defaulttransceiver
-#USEMODULE += config
-#USEMODULE += oneway_malloc
-#USEMODULE += udp
-
-#USEMODULE += shell
-#USEMODULE += shell_commands
 USEMODULE += uart0
 USEMODULE += config
 
 USEMODULE += nativenet
+#USEMODULE += ng_netdev_eth
 
-USEMODULE += udp
-#USEMODULE += ng_udp
-#USEMODULE += ng_ipv6
+USEMODULE += ng_udp
+USEMODULE += ng_ipv6
+USEMODULE += ng_netdev_eth
+USEMODULE += ng_netif
+USEMODULE += ng_pktdump
 
 USEMODULE += random
 USEMODULE += libwolfssl

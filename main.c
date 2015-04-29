@@ -14,12 +14,6 @@
 #include <string.h>
 #include "main.h"
 #include "objects.h"
-/*#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>*/
-
-
 
 #define PORT 5683
 #define BUFSZ 1024
@@ -28,15 +22,12 @@
 int certificates = 1;
 int shutdown = 0;
 
-int sock_snd, sock_rcv, if_id;
-sockaddr6_t sa_rcv, sa_snd;
+ng_ipv6_addr_t* srcAddress;
 
 uint8_t scratch_raw[BUFSZ];
 coap_rw_buffer_t scratch_buf = {scratch_raw, sizeof(scratch_raw)};
 static coap_endpoint_path_t path = {1, {"node"}};
 
-#define RCV_MSG_Q_SIZE      (64)
-msg_t msg_q[RCV_MSG_Q_SIZE];
 
 typedef struct buffer_data {
     char* cipher_receive[BUFSZ];
@@ -49,12 +40,12 @@ buffer_data* buffers;
 
 
 /**
- * Function not yet used!
  * Random number generator
 **/
 word32 rand_generator(void){
    return (word32)genrand_uint32();
 }
+
 #ifdef SHELL
    static int shell_readc(void)
    {
@@ -87,25 +78,22 @@ static uint16_t get_hw_addr(void)
     return sysconfig.id;
 }
 
-void udpif_get_ipv6_address(ipv6_addr_t *addr, uint16_t local_addr)
-{
-    ipv6_addr_init(addr, 0xfe80, 0x0, 0x0, 0x0, 0x0, 0x00ff, 0xfe00, local_addr);
-}
 
 /* init transport layer & routing stuff*/
 static void _init_tlayer(void)
 {
-   msg_init_queue(msg_q, RCV_MSG_Q_SIZE);
-   if(net_if_set_hardware_address(0, 1) == 0){
-      printf("Unable to set hardware address\n");
-   }
-    net_if_set_src_address_mode(0, NET_IF_TRANS_ADDR_M_SHORT);
-    printf("Hardware address of node: %d\n", net_if_get_hardware_address(0));
+   
+   //if(net_if_set_hardware_address(0, 1) == 0){
+   //   printf("Unable to set hardware address\n");
+   //}
+   //net_if_set_src_address_mode(0, NET_IF_TRANS_ADDR_M_SHORT);
+   //printf("Hardware address of node: %d\n", net_if_get_hardware_address(0));
 
-    //printf("initializing 6LoWPAN...\n");
+   //printf("initializing 6LoWPAN...\n");
 
-    sixlowpan_lowpan_init_interface(0);
-    wolfSSL_SetRand_gen(rand_generator);
+   //sixlowpan_lowpan_init_interface(0);
+   wolfSSL_SetRand_gen(rand_generator);
+   udp_init("1");
 }
 
 
@@ -114,68 +102,19 @@ void printTest(char *str) {
 }
 
 #ifdef CUSTOM_IO
-   /**
-    * CUSTOM_IO Receive function
-   **/
-   int CbIORecv(WOLFSSL* ssl, char* buf, int sz, void* ctx){
-      int recvd;
-      (void)ssl;
-      (void)ctx;
-      
-      socklen_t len = sizeof(sa_rcv);
-      
-      //wolfSSL_dtls_get_peer(ssl, &sa, &sizeof(sa));
-      recvd = socket_base_recvfrom(sock_rcv, buf, sz, 0, &sa_rcv, &len); //removed ssl->rflags
-      
-      if (recvd < 0) {
-        printf("Error in CbIORecv: %i\n", recvd);
-      }
-      else if (recvd == 0) {
-        
-        printf("Error in CbIORecv: %i Connection closed\n", recvd);
-      }
-
-       return recvd;
-   }
-
-   /**
-    * CUSTOM_IO Send function
-   **/
-   int CbIOSend(WOLFSSL* ssl, char* buf, int sz, void* ctx){
-      //WOLFSSL_DTLS_CTX* dtlsCtx = (WOLFSSL_DTLS_CTX*)ctx;
-      (void)ssl;
-      (void)ctx;
-      int send;
-      int len = sz;
-      if(sz > 128){
-         printf("HOOOWJO");
-      }
-      send = (int)socket_base_sendto(sock_rcv, &buf[sz-len], sz, 0, &sa_rcv, sizeof(sa_rcv)); //removed ssl->wflags
-      
-      if (send < 0) {
-           printf("Error in CbIOSend: %i\n", send);
-      }else if(send > sz){
-         return sz;
-      }
-      if (send != sz){
-         printf("Error send %i bytes and data was %i bytes!\n", send, sz);
-      }
-      
-      return send;
-   }
    
    /**
     * CUSTOM_IO GenCookie function
    **/
    int CbIOGenCookie(WOLFSSL* ssl, byte *buf, int sz, void *ctx){
-      socklen_t peerSz = sizeof(sa_rcv);
+      uint8_t peerSz = sizeof(*srcAddress);
       byte digest[SHA_DIGEST_SIZE];
       int  ret = 0;
       
       (void)ssl;
       (void)ctx;
    
-      ret = wc_ShaHash((byte*)&sa_rcv, peerSz, digest);
+      ret = wc_ShaHash((byte*)srcAddress, peerSz, digest);
       if (ret != 0)
          return ret;
 
@@ -264,6 +203,7 @@ int main(void){
    return 0;
 }
 
+/*
 void fill_nc(void)
 {
    int numne = 2;
@@ -271,7 +211,7 @@ void fill_nc(void)
    uint16_t neighbors[] = {33, 41};
    uint16_t ignore[] = {23, 31, 32, 51};
 
-   ipv6_addr_t r_addr;
+   ng_ipv6_addr_t r_addr;
    uint16_t l_addr;
 
    for (int i = 0; i < numne; i++) {
@@ -286,7 +226,7 @@ void fill_nc(void)
    for (int i = 0; i < numig; i++) {
      printf("Ignoring %u\n", ignore[i]);
    }
-}
+}*/
 
 void loadCertificates(WOLFSSL_CTX* ctx){
    if(certificates){
@@ -323,6 +263,10 @@ int newCoapClient(void){
         
    //redefine allocators used by wolfSSL to allocators of RIOT
    err = wolfSSL_SetAllocators(malloc,free,realloc);
+   if(err < 0){
+      printf("Unable to set allocators wolfSSL \n");
+      return -1;
+   }
    //Set method to DTLSv1_2 Client
    method = wolfDTLSv1_2_server_method();
    
@@ -345,8 +289,8 @@ int newCoapClient(void){
     
    #ifdef CUSTOM_IO
       //Redefine I/O of wolfSSL
-      wolfSSL_SetIORecv(ctx, CbIORecv);
-      wolfSSL_SetIOSend(ctx, CbIOSend);
+      wolfSSL_SetIORecv(ctx, udp_recv);
+      wolfSSL_SetIOSend(ctx, wolfssl_udp_send);
       wolfSSL_CTX_SetGenCookie(ctx, CbIOGenCookie);
    #endif
    
@@ -372,77 +316,35 @@ int newCoapClient(void){
    #ifdef CUSTOM_IO
       
       /** Sockets **/
-      printf("initializing receive socket...\n");
-      ipv6_addr_t r_addr;
-      uint16_t l_addr;
-      int address = 1;
-      //ipv6_addr_init(&r_addr, 0xfe80, 0x0, 0x0, 0x0, 0x0, 0x00ff, 0xfe00, 1);
+      printf("initializing udp...\n");
+      ng_ipv6_addr_t r_addr;
+      ng_ipv6_addr_t s_addr;
+      ng_ipv6_addr_mcast_scp_t scope = NG_IPV6_ADDR_MCAST_SCP_GLOBAL;
       
-      //ipv6_addr_init(&r_addr, 0xabcd, 0x0, 0x0, 0x0, 0x0, 0x00ff, 0xfe00, (uint16_t)address);
-      ipv6_addr_init(&r_addr, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, (uint16_t)address);
-      //ipv6_addr_init(&r_addr, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, (uint16_t)0);
-      //ipv6_addr_set_all_routers_addr(&r_addr);
-      l_addr = HTONS(1);
-      ndp_neighbor_cache_add(0, &r_addr, &l_addr, 1, 0, NDP_NCE_STATUS_REACHABLE,
-                           NDP_NCE_TYPE_TENTATIVE, 0xffff);
+      ng_ipv6_addr_set_all_nodes_multicast(&r_addr, scope );
       
+      ng_ipv6_addr_from_str(&r_addr, "::1");
+      ng_ipv6_addr_from_str(&s_addr, "fddf:dead:beef::1" );
       
-      sa_snd = (sockaddr6_t) { .sin6_family = AF_INET6,
-               .sin6_port = HTONS(SERVER_PORT) };
-      inet_pton(AF_INET6, "::1", &sa_snd.sin6_addr);
-      sa_snd.sin6_family = AF_INET6;
-      sa_snd.sin6_port = 5684;
-       
-      sa_rcv = (sockaddr6_t) { .sin6_family = AF_INET6,
-               .sin6_port = HTONS(5683) }; //This made the No Pid found for UDP packet
-      /*
-      memset(&sa_rcv, 0, sizeof(sa_rcv));
-      sa_rcv.sin6_family = AF_INET6;
-      sa_rcv.sin6_port = HTONS(SERVER_PORT);*/
-
-      /*    
-      if (inet_pton(AF_INET6, "::1", &sa_rcv.sin6_addr) < 1) {
-         printf("Error and/or invalid IP address");
-         return 1;
-      }*/
-            
-      sock_snd = socket_base_socket(PF_INET6, SOCK_DGRAM, IPPROTO_UDP);
-      sock_rcv = socket_base_socket(PF_INET6, SOCK_DGRAM, IPPROTO_UDP);
-      
-      if(sock_snd == -1){
-         printf("Error creating send socket!");
+      uint8_t src_port = HTONS(1);
+      uint8_t dst_port = HTONS(5683);
+      set_udp_src_dst( &s_addr, &r_addr, &src_port, &dst_port);
+      srcAddress = &s_addr;
          
-      }else{
-         
-         socket_base_print_sockets();
-         /* Sending message to all that I am available for communication! */
-         char buf[128];
-         int rsplen = sizeof(buf);
-         printf("Sending multicast to everyone to let know I exist!\n");
-         if (0 == coap_ext_build_PUT(buf, &rsplen, "", &path)) {
-            if(socket_base_sendto(sock_snd, buf, rsplen, 0, &sa_snd, sizeof(sa_snd)) > 1){
-               printf("[main-posix] PUT with payload sent to %s:%i\n", "::1", sa_snd.sin6_port);
-            }else{
-               printf("Somthing went wrong with sending HELLO I AM CoAP SERVER!\n");
-            }
+      /* Sending message to all that I am available for communication! */
+      char buf[128];
+      int rsplen = sizeof(buf);
+      printf("Sending multicast to everyone to let know I exist!\n");
+      if (0 == coap_ext_build_PUT(buf, &rsplen, "", &path)) {
+         if(udp_send(buf, rsplen) > 1){
+            printf("[main-posix] PUT with payload sent to %s\n", "::1");
+         }else{
+            printf("Somthing went wrong with sending HELLO I AM CoAP SERVER!\n");
+            return -1;
          }
-         
-      }
-      //Check if bind succeeds
-      if (-1 == socket_base_bind(sock_rcv, &sa_rcv, sizeof(sa_rcv))) {
-         printf("Error: bind to receive socket failed!\n");
-         socket_base_close(sock_rcv);
       }
       
-
       printf("Ready to receive requests.\n");
-      
-      /** client socket **/
-      
-      /*if(wolfSSL_set_fd(ssl, sock_rcv) != SSL_SUCCESS){
-         printf("Unable to set socket");
-         return -1;
-      }*/
       
    #else
       int sockfd = 0;
@@ -459,12 +361,13 @@ int newCoapClient(void){
       servAddr.sin6_port = htons(SERV_PORT);
       servAddr.sin6_family = AF_INET6;
       //servAddr.sin6_addr = in6addr_any;
-      if ((err = inet_pton(AF_INET6, "::1", &servAddr.sin6_addr)) != 1) {
+      ng_ipv6_addr_from_str(&sa_snd.sin6_addr, "::1");
+      /*if ((err = inet_pton(AF_INET6, "::1", &servAddr.sin6_addr)) != 1) {
          printf("Error and/or invalid IP address, %i \n", err);
          perror("inet_pton");
          exit(EXIT_FAILURE);
          return 1;
-      }
+      }*/
       
       status = bind(sockfd, (struct sockaddr *)&servAddr, sin6len);
 
@@ -506,17 +409,9 @@ int newCoapClient(void){
    int not_connected = 1;
    
    while(not_connected){
-      //int n, rc;
-      //socklen_t len = sizeof(sa_rcv);
-      //char buf[128];
-      //coap_packet_t pkt;
+      
       printf("Trying to receive something\n");
-      //n = socket_base_recvfrom(sock_rcv, buf, sizeof(buf), 0, &sa_rcv, &len);
-      //if(n<=0){
-      //   printf("Something went wrong with recvfrom\n");
-      //}else{
-      //   printf("Got %i bytes\n", n);
-      //}
+      
       ssl = wolfSSL_new(ctx);
       if (wolfSSL_accept(ssl) != SSL_SUCCESS) {
          printf("SSL_accept failed\n");
@@ -533,8 +428,6 @@ int newCoapClient(void){
    wolfSSL_shutdown(ssl);
    wolfSSL_free(ssl);
    #ifdef CUSTOM_IO
-      socket_base_close(sock_rcv);
-      socket_base_close(sock_snd);
    #else
       socket_close(sockfd);
    #endif

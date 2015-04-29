@@ -31,18 +31,20 @@
 
 
 #ifdef CUSTOM_IO
-   #include "inet_pton.h"
-   #include "udp.h"
-   #include "net_help.h"
-   #include "net_if.h"
-   //#include "netinet/in.h"
-   #include "socket_base/socket.h"
+   #include "net/ng_ipv6/addr.h"
+   #include "net/ng_udp.h"
+   
+   #include "udp_handler.h"
+   
+   #include "net/ng_netif.h"
+   //#include "net/ng_socket.h"
+   #include "net/ng_netbase.h"
 #else
    //#include <sys/types.h>
-   #include <sys/socket.h>
+   //#include <sys/socket.h>
    //#include <netinet/in.h>
-   #include <netdb.h>
-   #include <arpa/inet.h>
+   //#include <netdb.h>
+   //#include <arpa/inet.h>
    //#include <stdlib.h>
    //#include <unistd.h>
 #endif
@@ -78,7 +80,5 @@ int newCoapClient(void);
 void *second_thread(void *arg);
 void DatagramClient (WOLFSSL* ssl);
 void loadCertificates(WOLFSSL_CTX* ctx);
-int CbIORecv(WOLFSSL* ssl, char* buf, int sz, void* ctx);
-int CbIOSend(WOLFSSL* ssl, char* buf, int sz, void* ctx);
 int CbIOGenCookie(WOLFSSL* ssl, byte *buf, int sz, void *ctx);
 word32 rand_generator(void);
