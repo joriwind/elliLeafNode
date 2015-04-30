@@ -10,17 +10,14 @@ ng_ipv6_addr_t* srcAddr;
 ng_ipv6_addr_t* dstAddr;
 
 uint16_t* srcPort;
-uint8_t* dstPort;
+uint16_t* dstPort;
 
 static ng_netreg_entry_t _server = {NULL,
                                     NG_NETREG_DEMUX_CTX_ALL,
                                     KERNEL_PID_UNDEF};
 
-int set_udp_src_dst(ng_ipv6_addr_t* src_addr, ng_ipv6_addr_t* dst_addr,
-            uint16_t* src_port, uint8_t* dst_port){
-   srcAddr = src_addr;
+int set_udp_dst( ng_ipv6_addr_t* dst_addr,uint16_t* dst_port){
    dstAddr = dst_addr;
-   srcPort = src_port;
    dstPort = dst_port;
    return 0;
 }
@@ -107,7 +104,7 @@ int wolfssl_udp_send(WOLFSSL* ssl, char* buf, int sz, void* ctx){
 **/
 int udp_send(char* buf, int sz){
    
-   
+    int err;
    int len = sz;
    ng_pktsnip_t *payload, *udp, *ip;
    ng_netreg_entry_t *sendto;
@@ -116,10 +113,11 @@ int udp_send(char* buf, int sz){
                    NG_NETTYPE_UNDEF);
 
    udp = ng_udp_hdr_build(payload, NULL, 0,
-                         (uint8_t *)&dstPort, 2);
+                         (uint8_t *)dstPort, 2);
 
    ip = ng_ipv6_hdr_build(udp, NULL, 0,
-                         (uint8_t *)&dstAddr, sizeof(dstAddr));
+                           (uint8_t *)dstAddr, sizeof(dstAddr));
+   //                      (uint8_t *)&dstAddr, sizeof(dstAddr));
    
    /* and forward packet to the network layer */
    sendto = ng_netreg_lookup(NG_NETTYPE_UDP, NG_NETREG_DEMUX_CTX_ALL);
@@ -135,10 +133,17 @@ int udp_send(char* buf, int sz){
    ng_pktbuf_hold(ip, ng_netreg_num(NG_NETTYPE_UDP, NG_NETREG_DEMUX_CTX_ALL) - 1);
 
    while (sendto != NULL) {
-     ng_netapi_send(sendto->pid, ip);
+     err = ng_netapi_send(sendto->pid, ip);
+     if(err <1){
+         printf("Error on send\n");
+         return -1;
+     }
      sendto = ng_netreg_getnext(sendto);
    }
-   printf("Success: send %i byte\n", payload->size);
+   char addr_buf[NG_IPV6_ADDR_MAX_STR_LEN];
+   printf("Success: send %i byte to %s\n", payload->size, ng_ipv6_addr_to_str(&addr_buf[0],
+                                  dstAddr,
+                                  NG_IPV6_ADDR_MAX_STR_LEN));
 
    return sz;
 }

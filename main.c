@@ -36,6 +36,8 @@ uint8_t scratch_raw[BUFSZ];
 coap_rw_buffer_t scratch_buf = {scratch_raw, sizeof(scratch_raw)};
 static coap_endpoint_path_t path = {1, {"node"}};
 
+ng_ipv6_addr_t link_local, solicited, multicast;
+
 /**
  * @brief   Buffer size used by the shell
  */
@@ -131,13 +133,15 @@ static void _init_tlayer(void)
     ng_ipv6_netif_init();
 
     /* initialize netdev_eth layer */
-    ng_netdev_eth_init(&ng_netdev_eth, (dev_eth_t *)&dev_eth_tap);
-   
-    /* start MAC layer */
+    if(res = ng_netdev_eth_init(&ng_netdev_eth, (dev_eth_t *)&dev_eth_tap) < 0){
+        printf("ng_netdev_eth_init FAILED %i\n", res);
+    }
+    
+    // start MAC layer
     res = ng_nomac_init(nomac_stack, sizeof(nomac_stack), MAC_PRIO,
                         "eth_mac", (ng_netdev_t *)&ng_netdev_eth);
    
-    /* initialize IPv6 addresses */
+    // initialize IPv6 addresses
     netif = *(ng_netif_get(&num_netif));
 
     if (num_netif > 0) {
@@ -164,7 +168,7 @@ static void _init_tlayer(void)
         char mac_buf[32];
         uint8_t remote_mac[6];
         ng_ipv6_addr_t remote_addr;
-        /* Setup neighbour cache while NDP is unavailable */
+        // Setup neighbour cache while NDP is unavailable 
         ng_ipv6_addr_from_str(&remote_addr, REMOTE_IP);
 
         memcpy(&mac_buf, REMOTE_MAC, 18);
@@ -182,7 +186,7 @@ static void _init_tlayer(void)
     }
     
     
-    udp_init("1");
+    udp_init("5683");
     
    //sixlowpan_lowpan_init_interface(0);
    wolfSSL_SetRand_gen(rand_generator);
@@ -203,7 +207,6 @@ void printTest(char *str) {
 static int init_ipv6_linklocal(kernel_pid_t net_if, uint8_t *mac)
 {
     char addr_buf[NG_IPV6_ADDR_MAX_STR_LEN];
-    ng_ipv6_addr_t link_local, solicited, multicast;
     uint8_t eui64[8] = {0, 0, 0, 0xFF, 0xFE, 0, 0, 0};
     int res;
 
@@ -249,13 +252,14 @@ static int init_ipv6_linklocal(kernel_pid_t net_if, uint8_t *mac)
     }
 
     /* Setup multicast address */
-    memcpy(&multicast, &link_local, sizeof(ng_ipv6_addr_t));
+    //memcpy(&multicast, &link_local, sizeof(ng_ipv6_addr_t));
 
-    ng_ipv6_addr_set_multicast(&multicast,
+    /*ng_ipv6_addr_set_multicast(&multicast,
                                NG_IPV6_ADDR_MCAST_FLAG_TRANSIENT |   // No RP, temporary
                                NG_IPV6_ADDR_MCAST_FLAG_PREFIX_BASED, // unicast/prefix based
-                               NG_IPV6_ADDR_MCAST_SCP_LINK_LOCAL);   // link-local scope
-
+                               NG_IPV6_ADDR_MCAST_SCP_LINK_LOCAL);   // link-local scope*/
+    ng_ipv6_addr_set_all_nodes_multicast(&multicast, 0);
+    
     res = ng_ipv6_netif_add_addr(net_if,
                                  &multicast,
                                  NG_IPV6_ADDR_BIT_LEN,
@@ -351,7 +355,7 @@ void *second_thread(void *arg){
 int main(void){
    /* start shell */
     
-    shell_t shell;
+    //shell_t shell;
    #ifdef SHELL
       posix_open(uart0_handler_pid, 0);
       shell_t shell;
@@ -495,7 +499,7 @@ int newCoapClient(void){
    /* CUSTOM io or not?*/
    #ifdef CUSTOM_IO
       
-      /** Sockets **/
+      /** Sockets **//*
       printf("initializing udp...\n");
       ng_ipv6_addr_t r_addr;
       ng_ipv6_addr_t s_addr;
@@ -506,10 +510,11 @@ int newCoapClient(void){
       ng_ipv6_addr_from_str(&r_addr, "::1");
       ng_ipv6_addr_from_str(&s_addr, "fddf:dead:beef::1" );
       
-      uint8_t src_port = HTONS(1);
       uint8_t dst_port = HTONS(5683);
-      set_udp_src_dst( &s_addr, &r_addr, &src_port, &dst_port);
-      srcAddress = &s_addr;
+      set_udp_src_dst( &s_addr, &r_addr, (uint16_t*)&src_port, &dst_port);
+      srcAddress = &s_addr;*/
+      uint16_t dst_port = HTONS(5683);
+      set_udp_dst( &multicast, &dst_port);
          
       /* Sending message to all that I am available for communication! */
       char buf[128];

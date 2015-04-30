@@ -28,10 +28,10 @@ CFLAGS += -DDEVELHELP -DSCHEDSTATISTICS
 QUIET ?= 1
 
 # The global ip adress to set on startup
-CFLAGS += -DHOST_IP=\"::1\"
+CFLAGS += -DHOST_IP=\"fe80::a00:27ff:fe42:c1c\"
 
 # This will be filled into the neighbour cache on startup
-CFLAGS += -DREMOTE_IP=\"::1\" -DREMOTE_MAC=\"3e:94:6e:ea:d3:7b\"
+CFLAGS += -DREMOTE_IP=\"fe80::a00:27ff:fe42:c1b\" -DREMOTE_MAC=\"08:00:27:42:0c:1b\"
 
 # Modules to include:
 
@@ -45,6 +45,7 @@ USEMODULE += ng_nomac
 USEMODULE += ng_udp
 USEMODULE += ng_ipv6
 USEMODULE += ng_netdev_eth
+#USEMODULE += dev_eth_tap.h
 USEMODULE += ng_netif
 #USEMODULE += net_if
 USEMODULE += ng_pktdump
